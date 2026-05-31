@@ -1,0 +1,44 @@
+import DashboardCardCreate from '#components/dashboard/DashboardCardCreate'
+import React from 'react'
+import notepage from '../../assets/elements/notepage.svg'
+import folder from '../../assets/elements/foldericon.svg'
+import { useNavigate } from 'react-router'
+
+function DashboardHome() {
+
+  const navigate = useNavigate()
+
+  const options= [
+    {
+      title:'Create New Document',
+      description:'Start with new blank page and invite as you go',
+      className:'bg-primary',
+      icon:notepage
+    },
+    {
+       title:'Import From Device',
+      description:'Bring in your designs from other formats and customize them',
+      className:'bg-secondary',
+      icon:folder
+    }
+  ]
+  return (
+    <section className='mt-8'>
+      <div>
+        <h1 className='font-bold font-secondary text-primary tracking-[-3%]'>सुभ प्रभाबत ! Shashank</h1>
+      </div>
+      <section className='mt-4 flex gap-4'>
+        {
+          options.map((item)=>{
+            return(
+                 <DashboardCardCreate title={item.title} className={item.className} description={item.description} icon={item.icon} onClick={()=>navigate('/doc')}/>
+            )
+          })
+        }
+     
+      </section>
+    </section>
+  )
+}
+
+export default DashboardHome
