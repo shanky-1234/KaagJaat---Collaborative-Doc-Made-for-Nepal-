@@ -45,13 +45,13 @@ function DocPage() {
         return <span {...props.attributes}>{children}</span>
     },[])
   return (
-    <div className='flex flex-col mx-auto rounded-xl h-full mt-8  border-neutral-300 w-1/2'> {/*Dynamic Margin, paddings*/}
+    <div className=' mx-auto rounded-xl h-full mt-8  border-neutral-300 w-[90%] md:w-1/2'> {/*Dynamic Margin, paddings*/}
         <section>
             <h4 className='text-2xl font-secondary font-medium text-primary'>My Document</h4>
         </section>
         <Slate editor={editor} initialValue={initialValue} onChange={storeDoc}>
            <Toolbar editor={editor}/>
-            <div className='border-2 border-neutral-200 p-4 h-[842px] max-h-[842px] rounded-xl mt-4'>
+            <div className='border-2 border-neutral-200 p-4 w-full h-[842px] max-h-[842px] rounded-xl mt-4'>
             <Editable renderElement={renderElement} renderLeaf={renderLeaf} onKeyDown={(event)=>setKey(event.key)} placeholder='Start Wirting' className='w-full focus:outline-0'/>
             </div>
             </Slate>

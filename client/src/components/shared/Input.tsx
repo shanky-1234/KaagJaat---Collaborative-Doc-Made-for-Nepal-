@@ -2,12 +2,12 @@ import { Icon, type LucideIcon } from 'lucide-react'
 import React from 'react'
 
 
-type InputProps = {props?:React.InputHTMLAttributes<HTMLElement>,
+type InputProps =  React.InputHTMLAttributes<HTMLInputElement> & {
     className?:string,
     placeholder:string,
-    icon:LucideIcon
+    icon:LucideIcon,
 }
-function Input({props,className,placeholder,icon}:InputProps) {
+function Input({className,placeholder,icon,...props}:InputProps) {
     const Icon = icon
   return (
     <div className='relative'>

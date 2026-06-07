@@ -28,7 +28,7 @@ html, body{
 
 @layer{
   h1{
-   @apply text-6xl font-bold
+   @apply text-4xl md:text-6xl font-bold 
   }
   h3{
     @apply text-2xl font-bold

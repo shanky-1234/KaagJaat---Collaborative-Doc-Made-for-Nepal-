@@ -41,7 +41,7 @@ function SidebarDashboard() {
   const {toggleSidebar,state} = useSidebar()
   console.log(state)
   return (
-    <Sidebar className='border-none pt-8 px-7 top-14 h-[calc(100vh-3.5rem)]' collapsible='icon'>
+    <Sidebar className='border-none pt-2 px-7 top-20 h-[calc(100vh-3.2rem)] bg-background md:bg-white' collapsible='icon'>
         {/* <SidebarHeader>
           <div className='flex items-center gap-4'>
           

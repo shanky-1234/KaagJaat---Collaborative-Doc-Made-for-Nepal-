@@ -23,9 +23,9 @@ function DashboardHome() {
     }
   ]
   return (
-    <section className='mt-8'>
+    <section className='mt-8 mx-8'>
       <div>
-        <h1 className='font-bold font-secondary text-primary tracking-[-3%]'>सुभ प्रभाबत ! Shashank</h1>
+        <h1 className='font-bold font-secondary text-primary tracking-[-3%] text-2xl'>सुभ प्रभाबत ! Shashank</h1>
       </div>
       <section className='mt-4 flex gap-4'>
         {
