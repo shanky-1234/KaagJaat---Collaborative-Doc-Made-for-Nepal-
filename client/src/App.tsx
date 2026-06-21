@@ -6,6 +6,7 @@ import DocPageLayout from './layouts/DocPageLayout'
 import LoginPage from './pages/authPage/LoginPage'
 import ProtectedRoutes from './routes/ProtectedRoutes'
 import PublicRoutes from './routes/PublicRoutes'
+import RegisterPage from './pages/authPage/RegisterPage'
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
       </Route>
       <Route element={<PublicRoutes/>}>
             <Route path='/auth/login' element={<LoginPage/>}/>
+            <Route path='/auth/createAccount' element={<RegisterPage/>}/>
       </Route>
    </Routes>
   )

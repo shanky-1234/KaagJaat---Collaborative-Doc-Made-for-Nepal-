@@ -5,14 +5,16 @@ import Button from '#components/shared/Button'
 import { useState } from 'react'
 import { userAuthService } from '@/services/userAuth'
 import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks'
-import { setLoading, setUserData } from '@/redux/AuthSlice'
+import { setLoading, setToken, setUserData } from '@/redux/AuthSlice'
 import { useNavigate } from 'react-router'
 import { isAllOf } from '@reduxjs/toolkit'
 
 function LoginPage() {
     
+    
     const [email,setEmail] = useState<string>('')
     const [password,setPassword] = useState<string>('')
+    const [error, setError] = useState<string>('')
 
     const dispatch = useAppDispatch()
     const {isLoading} = useAppSelector(state=>state.auth)
@@ -21,6 +23,7 @@ function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault()
+        setError('')
         dispatch(setLoading(true))
         const data = {
             email,
@@ -31,12 +34,18 @@ function LoginPage() {
             const response = await userAuthService.userLogin(data)
             if(response.success){
                 dispatch(setUserData(response.userDetails))
+                dispatch(setToken(response.token))
+                localStorage.setItem("user",JSON.stringify(response.userDetails))
+                localStorage.setItem("token",response.token)
+                localStorage.setItem("isAuthenticated",JSON.stringify(true))
                 console.log(response)
                 navigate('/')
             }
         }
-        catch(error){
+        catch(error:any){
             console.error(error)
+            if (error instanceof Error)
+            setError(error.message)
         }
         finally{
             dispatch(setLoading(false))
@@ -57,12 +66,18 @@ function LoginPage() {
                     <form className='space-y-2' onSubmit={handleSubmit}>
                         <Input placeholder='Enter Your Email' icon={Mail} className='w-full' onChange={(e)=>setEmail(e.target.value)}/>
                         <Input placeholder='Enter Your Password' icon={KeyRound} className='w-full' onChange={(e)=>setPassword(e.target.value)}/>
+                        {
+                            error &&
+                            <div>
+                                <span className='text-sm text-red-400'>{error}</span>
+                            </div>
+                        }
                         <Button className='bg-primary text-white rounded-xl w-full'>Log in</Button>
                     </form>
 
                 </div>
                 <div className='mt-4 cursor-pointer'>
-                    <p className='text-center text-neutral-two text-sm'>Create a new account</p>
+                    <p className='text-center text-neutral-two text-sm' onClick={()=>navigate('/auth/createAccount')}>Create a new account</p>
                 </div>
             </div>
         </section>

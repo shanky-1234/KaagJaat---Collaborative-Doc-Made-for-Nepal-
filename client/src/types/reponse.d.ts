@@ -1,8 +1,14 @@
+type DefaultResponse = {
+    success:boolean,
+    message:string,
+    error?:object
+}
+
 type RegisterResponseData = {
      _id:string,
     fullname:string,
     email:string,
-    dob:Date,
+    dob:string,
     purpose?:string,
     gender:string
 }
@@ -17,7 +23,7 @@ type LoginResponseData = {
     _id:string,
     fullname:string,
     email:string,
-    dob:Date,
+    dob:string,
     purpose?:string,
     gender:string
 }
@@ -26,5 +32,5 @@ type LoginResponse = {
     success:boolean,
     message:string,
     userDetails:LoginResponseData,
-    jwtToken:string
+    token:string
 }

@@ -120,4 +120,19 @@ catch(error){
 }
 }
 
-module.exports = {RegisterUser,loginUsers}
+const logoutUsers = async(req,res)=>{
+    try {
+        return res.status(200).json({
+            success:true,
+            message:"User Successfully Logged Out"
+        })
+    } catch (error) {
+        console.error(error)        
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error",
+            error
+        })
+    }
+}
+module.exports = {RegisterUser,loginUsers,logoutUsers}
