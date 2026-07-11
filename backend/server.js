@@ -5,6 +5,7 @@ require("dotenv").config()
 const connectToDB = require('./config/database')
 
 const authRoute = require('./Router/authRoutes')
+const documentRoute = require('./Router/documentRoutes')
 
 connectToDB()
 
@@ -18,6 +19,7 @@ app.use(express.json())
 
 
 app.use('/v1/api/auth',authRoute)
+app.use('/v1/api/document',documentRoute)
 
 app.listen(process.env.PORT,()=>{
     
