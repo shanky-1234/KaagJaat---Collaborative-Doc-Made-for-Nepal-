@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks'
 import { userAuthService } from '@/services/userAuth'
 import { setLoading, setLogout, setToken, setUserData } from '@/redux/AuthSlice'
+import { useNavigate } from 'react-router'
 
     type DropdownOption = {
         label:string,
@@ -15,6 +16,8 @@ function DropdownProfile() {
 
     const [error,setError] = useState<string>('')
     const {userData} = useAppSelector(state=>state.auth)
+
+    const navigate = useNavigate()
 
     const dispatch = useAppDispatch()
 
@@ -47,6 +50,9 @@ function DropdownProfile() {
     }
     finally{
         (dispatch(setLoading(false)))
+        localStorage.removeItem("token");
+    dispatch(setLogout());
+    navigate("/login");
     }
     }
 

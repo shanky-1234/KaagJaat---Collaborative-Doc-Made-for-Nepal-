@@ -73,22 +73,6 @@ const DocumentSchema = new mongoose.Schema(
         },
       },
     ],
-
-    collaborators: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'users',
-          required: true
-        },
-
-        role: {
-          type: String,
-          enum: ['viewer', 'editor'],
-          default: 'viewer'
-        }
-      }
-    ],
     
     ownerUser: {
       type: mongoose.Schema.Types.ObjectId,

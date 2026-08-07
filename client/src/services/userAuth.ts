@@ -39,7 +39,7 @@ export const userAuthService = {
     },
     userLogout:async():Promise<DefaultResponse>=>{
         try {
-            const response = await api.get('/auth/logout')
+            const response = await api.get('/auth/logout',)
             return response.data
         } catch (error) {
             console.error(error)

@@ -30,8 +30,14 @@ html, body{
   h1{
    @apply text-4xl md:text-6xl font-bold 
   }
+  h2{
+    @apply text-[32px] font-bold
+  }
   h3{
     @apply text-2xl font-bold
+  }
+  h5{
+    @apply text-xl 
   }
 }
 

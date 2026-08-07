@@ -30,6 +30,7 @@
     "react-dom": "^19.2.6",
     "react-redux": "^9.3.0",
     "react-router": "^7.15.1",
+    "react-toastify": "^11.1.0",
     "shadcn": "^4.8.0",
     "slate": "^0.124.1",
     "slate-history": "^0.113.1",

@@ -7,6 +7,8 @@ const createDocuments = async (req,res) =>{
             ownerUser:req.user.id,
             name:"New Document"
         })
+
+        await newDocument.populate('ownerUser','_id fullname email')
         return res.status(200).json({
             success:true,
             message:"Document Successfully Created",
@@ -33,12 +35,12 @@ const getDocument = async (req,res)=>{
             })
         }
 
-        const document =await documentModel.find({ownerUser:userId}).populate('ownerUser')
+        const document =await documentModel.find({ownerUser:userId}).populate('ownerUser','_id fullname email')
 
         return res.status(200).json({
             success:true,
             message:"Document Successfully Retrieved",
-           document
+           allDocument:document
         })
     } catch (error) {
         console.error(error)
@@ -70,7 +72,7 @@ const getSingleDocument = async (req,res)=>{
 
     
 
-    const singleDocument = await documentModel.findOne({_id:id,ownerUser:userId}).populate('ownerUser')
+    const singleDocument = await documentModel.findOne({_id:id,ownerUser:userId}).populate('ownerUser','_id fullname email')
 
     if(!singleDocument){
         return res.status(404).json({
@@ -136,7 +138,7 @@ const updateDocument = async (req,res)=>{
     },{
         new:true,
         runValidators:true
-    }).populate('ownerUser')
+    }).populate('ownerUser','_id fullname email')
 
     if(!updatedDocument){
         return res.status(401).json({
@@ -158,7 +160,41 @@ const updateDocument = async (req,res)=>{
             message:"Internal Server Error"
         })
     }
-    
 }
 
-module.exports = {createDocuments,getDocument,getSingleDocument,updateDocument}
+const deleteDocument = async (req,res) =>{
+    try{
+    const userId = req.user.id
+    const docId = req.params.id
+
+    if(!docId) {
+        return res.status(404).json({
+            success:false,
+            message:"Document Not Found"
+        })
+    }
+
+    const deleteDocument = await documentModel.findByIdAndDelete({_id:docId,ownerUser:userId})
+
+    if(!deleteDocument){
+        return res.status(403).json({
+            success:false,
+            message:'you dont have the permission or the document doesnt match'
+        })
+    }
+
+    return res.status(200).json({
+        success:true,
+        message:"Document Deleted Successfully!",
+        deletedData:deleteDocument
+    })
+}
+catch (error){
+    return res.status(404).json({
+            success:false,
+            message:"Document Not Found"
+        })
+}
+}
+
+module.exports = {createDocuments,getDocument,getSingleDocument,updateDocument,deleteDocument}

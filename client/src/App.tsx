@@ -7,6 +7,7 @@ import LoginPage from './pages/authPage/LoginPage'
 import ProtectedRoutes from './routes/ProtectedRoutes'
 import PublicRoutes from './routes/PublicRoutes'
 import RegisterPage from './pages/authPage/RegisterPage'
+import { ToastContainer} from 'react-toastify';
 
 function App() {
 
@@ -17,7 +18,7 @@ function App() {
           <Route path='/' element={<DashboardHome/>}/>
       </Route>
       <Route element={<DocPageLayout/>}>
-          <Route path='/doc' element={<DocPage/>}/>
+          <Route path='/documents/n/:id' element={<DocPage/>}/>
       </Route>
       </Route>
       <Route element={<PublicRoutes/>}>

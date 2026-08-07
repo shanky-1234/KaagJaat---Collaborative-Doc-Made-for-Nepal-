@@ -1,20 +1,56 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { createEditor, type Descendant,Editor  } from 'slate'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { createEditor, type Descendant,Editor, string  } from 'slate'
 import { Slate, Editable, withReact, type RenderLeafProps, type RenderElementProps,  } from 'slate-react'
 import {withHistory} from 'slate-history'
 import Button from '#components/shared/Button'
 import Toolbar from '#components/docpage/Toolbar'
+import { useNavigate, useParams } from 'react-router'
+import { documentHandler } from '@/services/documentHandler'
+import { toast } from 'react-toastify'
 
 function DocPage() {
+
+    const {id} = useParams()
+
+    const navigate = useNavigate()
+
+    const fetchDocument = async(id:string)=>{
+        try {
+            const response = await documentHandler.getSingleDocument(id)
+            console.log(response)
+            setTitle(response?.singleDocument.name)
+            setContent(response?.singleDocument.content)
+        } catch (error) {
+            console.error(error)
+            toast.error(`${error}`)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
+    useEffect(()=>{
+        if (!id){
+            navigate('/')
+            return
+        }
+
+        fetchDocument(id)
+ 
+    },[id])
+
     const initialValue = useMemo<Descendant[]>(()=>[
          {
     type: 'paragraph',
     children: [{ text: 'A line of text in a paragraph.' }],
   },
     ],[]) 
+
+    const [loading,setLoading] = useState<Boolean>(true)
+    const [title,setTitle] = useState("")
     const [editor] = useState(()=>withHistory(withReact(createEditor())))
     const [key,setKey] = useState<string>('')
-    const [content,setContent] = useState<Descendant[]>(initialValue)
+    const [content,setContent] = useState<Descendant[]>([])
 
     const storeDoc = (value:Descendant[]):void=>{
         setContent(value)
@@ -44,18 +80,43 @@ function DocPage() {
 
         return <span {...props.attributes}>{children}</span>
     },[])
+
+    const updateDocument = async()=>{
+        try {
+            if (!id) {
+                toast.error('Document id is missing')
+                return
+            }
+            const response = await documentHandler.updateDocument(id,{name:title,content:content})
+            if (response.success){
+                console.log('successful')
+                toast.success('Succefully Updated')
+            }
+        } catch (error) {
+            console.error(error)
+             toast.error(`${error}`)
+        }
+    }
   return (
-    <div className=' mx-auto rounded-xl h-full mt-8  border-neutral-300 w-[90%] md:w-1/2'> {/*Dynamic Margin, paddings*/}
-        <section>
-            <h4 className='text-2xl font-secondary font-medium text-primary'>My Document</h4>
+    <main className=' mx-auto rounded-xl h-full mt-8  border-neutral-300 w-[90%] md:w-1/2'> {/*Dynamic Margin, paddings*/}
+        <section className='w-full'>
+            <input value={title} onChange={e=>setTitle(e.target.value)} className='text-2xl w-full font-secondary font-medium text-primary'/>
+            <Button onClick={updateDocument}>Try</Button>
         </section>
-        <Slate editor={editor} initialValue={initialValue} onChange={storeDoc}>
+        { loading ? 
+        <div>
+            loading...
+        </div> :
+            <div>
+        <Slate key={id} editor={editor} initialValue={content} onChange={storeDoc}>
            <Toolbar editor={editor}/>
             <div className='border-2 border-neutral-200 p-4 w-full h-[842px] max-h-[842px] rounded-xl mt-4'>
             <Editable renderElement={renderElement} renderLeaf={renderLeaf} onKeyDown={(event)=>setKey(event.key)} placeholder='Start Wirting' className='w-full focus:outline-0'/>
             </div>
             </Slate>
-    </div>
+        </div>
+        }
+    </main>
   )
 }
 

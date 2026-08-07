@@ -41,7 +41,7 @@ function SidebarDashboard() {
   const {toggleSidebar,state} = useSidebar()
   console.log(state)
   return (
-    <Sidebar className='border-none pt-2 px-7 top-20 h-[calc(100vh-3.2rem)] bg-background md:bg-white' collapsible='icon'>
+    <Sidebar className='border-none pt-2 mx-2 top-20 h-[calc(100vh-3.2rem)] bg-background md:bg-white' collapsible='icon'>
         {/* <SidebarHeader>
           <div className='flex items-center gap-4'>
           
@@ -56,7 +56,7 @@ function SidebarDashboard() {
             <SidebarGroup>
                <Button className='bg-primary rounded text-white flex justify-center '>
                 <div className='flex items-center gap-2'>
-                  <span>New</span>
+                  <span className='group-data-[collapsible=icon]:hidden'>New</span>
                   <Plus/>
                 </div>
                </Button>
@@ -72,8 +72,8 @@ function SidebarDashboard() {
                     return(
                     <SidebarMenuItem key={items.position}>
                       <SidebarMenuButton className='flex' >
-                            <Icon color='#BA4800'/>
-                            <a href={items.url}>{items.title}</a>
+                            <Icon color='#BA4800' size={20}/>
+                            <a href={items.url} className='group-data-[collapsible=icon]:hidden'>{items.title}</a>
                       </SidebarMenuButton>
                       </SidebarMenuItem>
                 )})}
