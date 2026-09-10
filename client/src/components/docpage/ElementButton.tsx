@@ -1,6 +1,6 @@
 import Button from "#components/shared/Button";
 import type { CustomElements } from "@/types/slate";
-import React, { useCallback } from "react";
+import React from "react";
 import { Editor, Transforms,Element } from "slate";
 import { useSlate } from "slate-react";
 
@@ -28,6 +28,7 @@ function ElementButton({
    
         const isActive = isElementActive(editor,type)
         const toggleElement = (editor:Editor,type:string) =>{
+            Editor.removeMark(editor, 'fontSize')
             Transforms.setNodes(editor,
             {type:isActive ? 'paragraph' : type } as Partial<CustomElements>,
             {match: n=>Element.isElement(n) && Editor.isBlock(editor,n)}

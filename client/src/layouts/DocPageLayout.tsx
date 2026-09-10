@@ -6,7 +6,7 @@ import { Outlet } from 'react-router'
 function DocPageLayout() {
   return (
     <>
-    <HeaderDocPage/>
+
     <main><Outlet/></main>
     </>
   )

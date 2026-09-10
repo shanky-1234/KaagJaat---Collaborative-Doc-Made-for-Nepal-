@@ -6,11 +6,16 @@ type CustomText = {
     bold?:string,
     italic?:string,
     underline?:string,
-    strikethrough?:string
+    strikethrough?:string,
+    color?:string,
+    highlights?:string,
+    fontSize?:number,
+    fontFamily?:string
 }
 
 type CustomElements = {
-    type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three',
+    type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'text',
+    align?:'left' | 'right' | 'center' | 'justify'
     children:CustomText[]
 }
 

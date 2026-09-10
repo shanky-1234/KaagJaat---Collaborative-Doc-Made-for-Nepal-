@@ -1,123 +1,144 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { createEditor, type Descendant,Editor, string  } from 'slate'
-import { Slate, Editable, withReact, type RenderLeafProps, type RenderElementProps,  } from 'slate-react'
-import {withHistory} from 'slate-history'
-import Button from '#components/shared/Button'
-import Toolbar from '#components/docpage/Toolbar'
-import { useNavigate, useParams } from 'react-router'
-import { documentHandler } from '@/services/documentHandler'
-import { toast } from 'react-toastify'
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { createEditor, type Descendant, Editor, string } from "slate";
+import {
+  Slate,
+  Editable,
+  withReact,
+  type RenderLeafProps,
+  type RenderElementProps,
+  ReactEditor,
+} from "slate-react";
+import { withHistory } from "slate-history";
+import Toolbar from "#components/docpage/Toolbar/Toolbar";
+import { useNavigate, useParams } from "react-router";
+import DocumentHeader from "#components/docpage/DocumentHeader";
+import useDocument from "#hooks/useDocument";
+import Element from "#components/docpage/Element";
+import Leaf from "#components/docpage/Leaf";
+import HeaderDocPage from "#components/docpage/HeaderDoc";
+
+import { useTransliterate } from "#hooks/useTransliterate";
+import Suggestion from "#components/docpage/Transliteration/Suggestion";
 
 function DocPage() {
+  const [activeFont, setActiveFont] = useState<string>("Mukta");
+  const [fontSize, setFontSize] = useState<number>(16);
+  const [suggestionPosition, setSuggestionPosition] = useState({
+    top: 0,
+    left: 0,
+  });
 
-    const {id} = useParams()
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [editor] = useState(() => withHistory(withReact(createEditor())));
+  const [key, setKey] = useState<string>("");
+  const { title, setTitle, loading, content, setContent, updateDocument } =
+    useDocument(id);
+  const {
+    suggestions,
+    activeIndex,
+    setActiveIndex,
+    handleKeyDown,
+    handleChange,
+    selectSuggestion
+  } = useTransliterate(editor);
 
-    const navigate = useNavigate()
-
-    const fetchDocument = async(id:string)=>{
-        try {
-            const response = await documentHandler.getSingleDocument(id)
-            console.log(response)
-            setTitle(response?.singleDocument.name)
-            setContent(response?.singleDocument.content)
-        } catch (error) {
-            console.error(error)
-            toast.error(`${error}`)
-        }
-        finally{
-            setLoading(false)
-        }
+  useEffect(() => {
+    if (!suggestions.length || !editor.selection) {
+      return;
     }
+    const selection = editor.selection;
+    const updatePosition = () => {
+      try {
+        const domRange = ReactEditor.toDOMRange(editor, selection);
 
-    useEffect(()=>{
-        if (!id){
-            navigate('/')
-            return
-        }
+        const rect = domRange.getBoundingClientRect();
+        setSuggestionPosition({
+          top: rect.bottom,
+          left: rect.left,
+        });
+      } catch (error) {
+        console.log("Could not get suggestion position", error);
+      }
+    };
+    requestAnimationFrame(updatePosition);
+  }, [suggestions, editor]);
 
-        fetchDocument(id)
- 
-    },[id])
+  const storeDoc = (value: Descendant[]): void => {
+    setContent(value);
+    const marks = Editor.marks(editor);
+    console.log("UNDO STACK:", editor.history.undos.length);
+    console.log("REDO STACK:", editor.history.redos.length);
 
-    const initialValue = useMemo<Descendant[]>(()=>[
-         {
-    type: 'paragraph',
-    children: [{ text: 'A line of text in a paragraph.' }],
-  },
-    ],[]) 
+    setActiveFont(marks?.fontFamily as string) ?? "Mukta";
 
-    const [loading,setLoading] = useState<Boolean>(true)
-    const [title,setTitle] = useState("")
-    const [editor] = useState(()=>withHistory(withReact(createEditor())))
-    const [key,setKey] = useState<string>('')
-    const [content,setContent] = useState<Descendant[]>([])
+    setFontSize(marks?.fontSize as number) ?? 16;
+  };
 
-    const storeDoc = (value:Descendant[]):void=>{
-        setContent(value)
-    }
+  const renderElement = useCallback((props: RenderElementProps) => {
+    return <Element {...props} />;
+  }, []);
 
-    const renderElement = useCallback((props:RenderElementProps)=>{
-        switch(props.element.type){
-            case 'heading-one' : 
-                return <h1 {...props.attributes} className='text-5xl'>{props.children}</h1>
-            case 'heading-two':
-                return <h2 {...props.attributes} className='text-3xl'>{props.children}</h2>
-          case 'heading-three':
-                return <h3 className='text-xl' {...props.attributes}>{props.children}</h3>
-            default:
-                return <p {...props.attributes}>{props.children}</p>
-}},[])
+  const renderLeaf = useCallback((props: RenderLeafProps) => {
+    return <Leaf {...props} />;
+  }, []);
 
-
- 
-    const renderLeaf = useCallback((props:RenderLeafProps)=>{
-        let {children} = props
-
-    if (props.leaf.bold) children = <strong>{children}</strong>
-    if (props.leaf.italic) children = <em>{children}</em>
-    if (props.leaf.underline)     children = <u>{children}</u>
-    if (props.leaf.strikethrough) children = <s>{children}</s>
-
-        return <span {...props.attributes}>{children}</span>
-    },[])
-
-    const updateDocument = async()=>{
-        try {
-            if (!id) {
-                toast.error('Document id is missing')
-                return
-            }
-            const response = await documentHandler.updateDocument(id,{name:title,content:content})
-            if (response.success){
-                console.log('successful')
-                toast.success('Succefully Updated')
-            }
-        } catch (error) {
-            console.error(error)
-             toast.error(`${error}`)
-        }
-    }
   return (
-    <main className=' mx-auto rounded-xl h-full mt-8  border-neutral-300 w-[90%] md:w-1/2'> {/*Dynamic Margin, paddings*/}
-        <section className='w-full'>
-            <input value={title} onChange={e=>setTitle(e.target.value)} className='text-2xl w-full font-secondary font-medium text-primary'/>
-            <Button onClick={updateDocument}>Try</Button>
-        </section>
-        { loading ? 
-        <div>
-            loading...
-        </div> :
-            <div>
-        <Slate key={id} editor={editor} initialValue={content} onChange={storeDoc}>
-           <Toolbar editor={editor}/>
-            <div className='border-2 border-neutral-200 p-4 w-full h-[842px] max-h-[842px] rounded-xl mt-4'>
-            <Editable renderElement={renderElement} renderLeaf={renderLeaf} onKeyDown={(event)=>setKey(event.key)} placeholder='Start Wirting' className='w-full focus:outline-0'/>
-            </div>
+    <>
+      <HeaderDocPage title={title} onTitleChange={setTitle} />
+      <main className=" mx-auto rounded-xl w-full h-full mt-8  border-neutral-300 w-[90%] md:w-1/2">
+        {" "}
+        {/*Dynamic Margin, paddings*/}
+        <DocumentHeader
+          title={title}
+          onTitleChange={setTitle}
+          updateDocument={updateDocument}
+        />
+        {loading ? (
+          <div>loading...</div>
+        ) : (
+          <div className="flex flex-col justify-center items-center">
+            <Slate
+              key={id}
+              editor={editor}
+              initialValue={content}
+              onChange={(value) => {
+                storeDoc(value);
+                handleChange(value);
+              }}
+            >
+              <Toolbar editor={editor} />
+              <div className="border-2 border-neutral-200 p-4 w-full h-[842px] max-h-[842px] rounded-xl mt-4">
+                <div className="relative">
+                  <Editable
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    placeholder="Start Wirting"
+                    className="w-full focus:outline-0"
+                    onKeyDown={handleKeyDown}
+                  />
+                  {suggestions.length != 0 && (
+                    <div className="fixed z-999"
+                    style={{
+                      top:suggestionPosition.top,
+                      left:suggestionPosition.left
+                    }}>
+                      <Suggestion
+                        words={suggestions}
+                        activeIndex={activeIndex}
+                        setActiveIndex={setActiveIndex}
+                        onSelect={selectSuggestion}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </Slate>
-        </div>
-        }
-    </main>
-  )
+          </div>
+        )}
+      </main>
+    </>
+  );
 }
 
-export default DocPage
+export default DocPage;

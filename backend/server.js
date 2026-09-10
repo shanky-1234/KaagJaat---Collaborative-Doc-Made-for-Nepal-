@@ -6,6 +6,7 @@ const connectToDB = require('./config/database')
 
 const authRoute = require('./Router/authRoutes')
 const documentRoute = require('./Router/documentRoutes')
+const transliterate = require('./Controller/transliteration')
 
 connectToDB()
 
@@ -20,6 +21,7 @@ app.use(express.json())
 
 app.use('/v1/api/auth',authRoute)
 app.use('/v1/api/document',documentRoute)
+app.use('/v1/api/transliterate',transliterate)
 
 app.listen(process.env.PORT,()=>{
     
