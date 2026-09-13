@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createEditor, type Descendant, Editor, string } from "slate";
 import {
   Slate,
@@ -23,17 +23,16 @@ import Suggestion from "#components/docpage/Transliteration/Suggestion";
 function DocPage() {
   const [activeFont, setActiveFont] = useState<string>("Mukta");
   const [fontSize, setFontSize] = useState<number>(16);
+  const [savingState,setSavingState] = useState<"saved" | "saving" | "unsaved" | "error" >("saved")
   const [suggestionPosition, setSuggestionPosition] = useState({
     top: 0,
     left: 0,
   });
 
   const { id } = useParams();
-  const navigate = useNavigate();
   const [editor] = useState(() => withHistory(withReact(createEditor())));
-  const [key, setKey] = useState<string>("");
   const { title, setTitle, loading, content, setContent, updateDocument } =
-    useDocument(id);
+    useDocument({id,setSavingState});
   const {
     suggestions,
     activeIndex,
@@ -43,7 +42,11 @@ function DocPage() {
     selectSuggestion
   } = useTransliterate(editor);
 
+  const saveTimer = useRef<ReturnType<typeof setTimeout>| null>(null)
   useEffect(() => {
+
+    
+
     if (!suggestions.length || !editor.selection) {
       return;
     }
@@ -62,10 +65,22 @@ function DocPage() {
       }
     };
     requestAnimationFrame(updatePosition);
+    if (saveTimer.current){
+      clearTimeout(saveTimer.current)
+    }
   }, [suggestions, editor]);
 
   const storeDoc = (value: Descendant[]): void => {
     setContent(value);
+    setSavingState("unsaved")
+    if (saveTimer.current){
+      clearTimeout(saveTimer.current)
+    }
+
+    saveTimer.current = setTimeout(()=>{
+    
+      updateDocument(title,value)
+    },1500)
     const marks = Editor.marks(editor);
     console.log("UNDO STACK:", editor.history.undos.length);
     console.log("REDO STACK:", editor.history.redos.length);
@@ -74,6 +89,21 @@ function DocPage() {
 
     setFontSize(marks?.fontSize as number) ?? 16;
   };
+
+  const handleTitleChange = (value:string) =>{
+    setTitle(value)
+    setSavingState("unsaved")
+
+     if (saveTimer.current){
+      clearTimeout(saveTimer.current)
+    }
+
+    saveTimer.current = setTimeout(()=>{
+    
+      updateDocument(title)
+    },1500)
+
+  }
 
   const renderElement = useCallback((props: RenderElementProps) => {
     return <Element {...props} />;
@@ -85,15 +115,15 @@ function DocPage() {
 
   return (
     <>
-      <HeaderDocPage title={title} onTitleChange={setTitle} />
+      <HeaderDocPage title={title} onTitleChange={handleTitleChange} savingState={savingState}/>
       <main className=" mx-auto rounded-xl w-full h-full mt-8  border-neutral-300 w-[90%] md:w-1/2">
         {" "}
         {/*Dynamic Margin, paddings*/}
-        <DocumentHeader
+        {/* <DocumentHeader
           title={title}
           onTitleChange={setTitle}
           updateDocument={updateDocument}
-        />
+        /> */}
         {loading ? (
           <div>loading...</div>
         ) : (

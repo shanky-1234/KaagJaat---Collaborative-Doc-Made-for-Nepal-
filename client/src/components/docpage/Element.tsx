@@ -5,7 +5,8 @@ import type { RenderElementProps } from "slate-react"
 function Element({ attributes, children, element }: RenderElementProps) {
 
   const style:React.CSSProperties ={
-    textAlign:element.align ?? 'left'
+    textAlign:element.align ?? 'left',
+    lineHeight: element.lineHeight ?? 1.5
   }
   switch (element.type) {
         case 'heading-one' : 

@@ -3,7 +3,7 @@ import LanguageSwitcher from '../dashboard/LanguageSwitcher'
 import logo from '../../assets/logo-icon.svg'
 import Profile from '#components/shared/Profie'
 import { Button } from '#components/ui/button'
-import { ArrowLeft, ChevronLeft, Lock, LockIcon, MessageSquare, Share2 } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, CloudAlert, CloudCheck, CloudOff, CloudUpload, Lock, LockIcon, MessageSquare, Share2 } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { useCallback, useRef, useState } from 'react'
 import { getNepaliSuggestions } from '@/services/transliterator'
@@ -11,6 +11,7 @@ import { getNepaliSuggestions } from '@/services/transliterator'
 interface DocumentHeaderProps {
     title?:string | undefined,
     onTitleChange?:(title:string)=>void
+    savingState?:string
 }
 
 const DEVANAGARI_DIGITS: Record<string, string> = {
@@ -74,11 +75,23 @@ function getMappedSuggestions(word: string): string[] {
   return [];
 }
 
-function HeaderDocPage({title,onTitleChange}:DocumentHeaderProps) {
+function HeaderDocPage({title,onTitleChange,savingState}:DocumentHeaderProps) {
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
+  const latestRequestId = useRef(0)
+  const debounceTimer = useRef<number | null>(null)
+
+  const closeSuggestions = useCallback(() => {
+    if (debounceTimer.current) {
+      window.clearTimeout(debounceTimer.current)
+      debounceTimer.current = null
+    }
+    latestRequestId.current += 1
+    setSuggestions([])
+    setActiveIndex(0)
+  }, [])
 
   const getCurrentToken = useCallback((value: string, caret: number) => {
     const beforeCaret = value.slice(0, caret)
@@ -106,35 +119,50 @@ function HeaderDocPage({title,onTitleChange}:DocumentHeaderProps) {
     const nextCaret = start + suggestion.length + (addSpaceAfter ? 1 : 0)
 
     onTitleChange?.(nextValue)
-    setSuggestions([])
-    setActiveIndex(0)
+    closeSuggestions()
 
     requestAnimationFrame(() => {
       input.focus();
       input.setSelectionRange(nextCaret, nextCaret)
     })
-  }, [getCurrentToken, onTitleChange, title])
+  }, [closeSuggestions, getCurrentToken, onTitleChange, title])
 
   const updateSuggestions = useCallback((value: string, caret: number) => {
-    const { token, start, end } = getCurrentToken(value, caret)
+    const { token } = getCurrentToken(value, caret)
+
     if (!token) {
-      setSuggestions([])
-      setActiveIndex(0)
+      closeSuggestions()
       return
     }
 
-    const mapped = getMappedSuggestions(token)
-    if (mapped.length) {
-      setSuggestions(mapped)
-      setActiveIndex(0)
+    if (/^[\u0900-\u097F]+$/.test(token)) {
+      closeSuggestions()
       return
     }
 
-    getNepaliSuggestions(token).then((suggestionList) => {
-      setSuggestions(suggestionList || [])
-      setActiveIndex(0)
-    })
-  }, [getCurrentToken])
+    if (debounceTimer.current) {
+      window.clearTimeout(debounceTimer.current)
+    }
+
+    const requestId = ++latestRequestId.current
+
+    debounceTimer.current = window.setTimeout(() => {
+      const mapped = getMappedSuggestions(token)
+      if (requestId !== latestRequestId.current) return
+
+      if (mapped.length) {
+        setSuggestions(mapped)
+        setActiveIndex(0)
+        return
+      }
+
+      getNepaliSuggestions(token).then((suggestionList) => {
+        if (requestId !== latestRequestId.current) return
+        setSuggestions(suggestionList || [])
+        setActiveIndex(0)
+      })
+    }, 150)
+  }, [closeSuggestions, getCurrentToken])
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const nextValue = e.target.value
@@ -146,6 +174,12 @@ function HeaderDocPage({title,onTitleChange}:DocumentHeaderProps) {
 
   const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!suggestions.length) return
+
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      closeSuggestions()
+      return
+    }
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -166,7 +200,7 @@ function HeaderDocPage({title,onTitleChange}:DocumentHeaderProps) {
         applySuggestion(activeSuggestion, true)
       }
     }
-  }, [activeIndex, applySuggestion, suggestions])
+  }, [activeIndex, applySuggestion, closeSuggestions, suggestions])
 
   return (
     <header className='pt-6 pr-8 pb-3  border-neutral-three flex justify-between items-center w-full border-b-1'>
@@ -192,6 +226,7 @@ function HeaderDocPage({title,onTitleChange}:DocumentHeaderProps) {
                 }}
                 className='text-xl w-auto min-w-20 font-main font-medium text-black outline-none'
                 size={Math.max((title ?? '').length, 1)}
+                required={true}
               />
 
               {suggestions.length > 0 && (
@@ -220,6 +255,19 @@ function HeaderDocPage({title,onTitleChange}:DocumentHeaderProps) {
                   Locked
                 </div>
               </Button>
+            </div>
+            <div>
+              <span className='text-neutral-500 flex items-center gap-2 flex-row-reverse'>
+                {
+                  savingState == 'saving' ? 
+                  <CloudUpload size={20}/> : 
+                  savingState == 'saved' ? 
+                  <CloudCheck size={20}/> :
+                  savingState == 'unsaved' ? 
+                  <CloudOff size={20}/>:
+                  <CloudAlert size={20}/>
+                }
+                {savingState}</span>
             </div>
             </div>
            

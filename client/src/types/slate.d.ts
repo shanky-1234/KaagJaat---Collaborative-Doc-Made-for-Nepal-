@@ -10,12 +10,14 @@ type CustomText = {
     color?:string,
     highlights?:string,
     fontSize?:number,
-    fontFamily?:string
+    fontFamily?:string,
+    lineHeight?:number
 }
 
 type CustomElements = {
     type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'text',
-    align?:'left' | 'right' | 'center' | 'justify'
+    align?:'left' | 'right' | 'center' | 'justify',
+    lineHeight?: number,
     children:CustomText[]
 }
 

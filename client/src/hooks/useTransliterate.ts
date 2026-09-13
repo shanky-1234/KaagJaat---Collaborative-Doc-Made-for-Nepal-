@@ -73,12 +73,61 @@ function getMappedSuggestions(word: string): string[] {
 export function useTransliterate(editor: TranslitEditor) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const isSelectingSuggestion = useRef(false)
+  const latestRequestId = useRef(0);
 
   const debounceTimer = useRef<number | null>(null);
+
+  const closeSuggestions = useCallback(() => {
+    if (debounceTimer.current) {
+      window.clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+    }
+    latestRequestId.current += 1;
+    setSuggestions([]);
+    setActiveIndex(0);
+  }, []);
+
+  const selectSuggestion = useCallback(
+    (suggestion: string, addSpaceAfter = false) => {
+      const result = getCurrentWord(editor);
+      if (!editor.selection || !result) {
+        return;
+      }
+
+      isSelectingSuggestion.current = true
+
+      const { path, wordStart, wordEnd } = result;
+
+      Transforms.select(editor, {
+        anchor: { path, offset: wordStart },
+        focus: { path, offset: wordEnd },
+      });
+
+      Transforms.insertText(editor, suggestion);
+
+      if (addSpaceAfter) {
+        Transforms.insertText(editor, " ");
+      }
+
+      closeSuggestions();
+
+      queueMicrotask(()=>{
+        isSelectingSuggestion.current = false
+      })
+    },
+    [closeSuggestions, editor]
+  );
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (!suggestions.length) return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeSuggestions();
+        return;
+      }
 
       if (event.key === "ArrowDown") {
         event.preventDefault();
@@ -100,16 +149,24 @@ export function useTransliterate(editor: TranslitEditor) {
         }
       }
     },
-    [activeIndex, suggestions]
+    [activeIndex, closeSuggestions, selectSuggestion, suggestions]
   );
 
   const handleChange = useCallback(
     (_value: Descendant[]) => {
+
+      if (isSelectingSuggestion.current) {
+      return;
+    }
       const result = getCurrentWord(editor);
 
       if (!result) {
-        setSuggestions([]);
-        setActiveIndex(0);
+        closeSuggestions();
+        return;
+      }
+
+      if (/^[\u0900-\u097F]+$/.test(result.word)) {
+        closeSuggestions();
         return;
       }
 
@@ -117,8 +174,14 @@ export function useTransliterate(editor: TranslitEditor) {
         window.clearTimeout(debounceTimer.current);
       }
 
+      const requestId = ++latestRequestId.current;
+
       debounceTimer.current = window.setTimeout(async () => {
         const mappedSuggestions = getMappedSuggestions(result.word);
+
+        if (requestId !== latestRequestId.current) {
+          return;
+        }
 
         if (mappedSuggestions.length) {
           setSuggestions(mappedSuggestions);
@@ -127,37 +190,15 @@ export function useTransliterate(editor: TranslitEditor) {
         }
 
         const suggestion = await getNepaliSuggestions(result.word);
+        if (requestId !== latestRequestId.current) {
+          return;
+        }
+
         setSuggestions(suggestion);
         setActiveIndex(0);
       }, 150);
     },
-    [editor]
-  );
-
-  const selectSuggestion = useCallback(
-    (suggestion: string, addSpaceAfter = false) => {
-      const result = getCurrentWord(editor);
-      if (!editor.selection || !result) {
-        return;
-      }
-
-      const { path, wordStart, wordEnd } = result;
-
-      Transforms.select(editor, {
-        anchor: { path, offset: wordStart },
-        focus: { path, offset: wordEnd },
-      });
-
-      Transforms.insertText(editor, suggestion);
-
-      if (addSpaceAfter) {
-        Transforms.insertText(editor, " ");
-      }
-
-      setSuggestions([]);
-      setActiveIndex(0);
-    },
-    [editor]
+    [closeSuggestions, editor]
   );
 
   return {

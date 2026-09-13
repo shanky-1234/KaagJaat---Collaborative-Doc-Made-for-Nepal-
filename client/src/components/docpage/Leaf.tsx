@@ -12,7 +12,8 @@ function Leaf({leaf,attributes,children}:RenderLeafProps) {
         color:leaf.color,
         backgroundColor:leaf.highlights,
         fontSize:leaf.fontSize,
-        fontFamily:leaf.fontFamily || "Mukta"
+        fontFamily:leaf.fontFamily || "Mukta",
+        lineHeight:leaf.lineHeight
     }
 
     return <span {...attributes} style={style}>{children}</span>

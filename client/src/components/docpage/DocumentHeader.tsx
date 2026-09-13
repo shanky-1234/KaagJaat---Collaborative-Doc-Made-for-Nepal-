@@ -4,7 +4,7 @@ import { useState } from "react"
 interface DocumentHeaderProps {
     title?:string,
     onTitleChange?:(title:string)=>void
-    updateDocument:()=>void
+    updateDocument:()=>Promise<void>
 }
 
 function DocumentHeader({title,onTitleChange,updateDocument}:DocumentHeaderProps) {
