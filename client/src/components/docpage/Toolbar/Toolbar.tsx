@@ -13,7 +13,7 @@ import {
   UnderlineIcon,
 } from "lucide-react";
 import { Editor } from "slate";
-import MarkButton from "../MarkButton";
+import MarkButton from "./MarkButton";
 import ColorPicker from "./ColorPicker";
 import FontSizePicker from "./FontSizePicker";
 import FontFamilyPicker from "./FontFamilyPicker";
@@ -34,13 +34,13 @@ function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
       <div className="block border min-h-[30px] border-neutral-400" />
       <Highlighter editor={editor}/>
       <ColorPicker editor={editor} />
-      <MarkButton mark="bold">
+      <MarkButton mark="bold" shortcut="b">
         <BoldIcon />
       </MarkButton>
-      <MarkButton mark="italic">
+      <MarkButton mark="italic" shortcut="i">
         <ItalicIcon />
       </MarkButton>
-      <MarkButton mark="underline">
+      <MarkButton mark="underline" shortcut="u">
         <UnderlineIcon />
       </MarkButton>
       <MarkButton mark="strikethrough">

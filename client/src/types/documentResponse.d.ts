@@ -1,4 +1,5 @@
 import type { Descendant } from "slate"
+import type { DocumentMargins, DocumentOrientation, PageSizes } from "./documentSetting"
 
 type Collaborators = {
     user:string,
@@ -6,9 +7,9 @@ type Collaborators = {
 }
 
 type Settings = {
-    pageSetting:string,
-    orientation:string,
-    margin:number
+    pageSize:PageSizes,
+    orientation:DocumentOrientation,
+    margin:DocumentMargins
 }
 
 type OwnerUser = {

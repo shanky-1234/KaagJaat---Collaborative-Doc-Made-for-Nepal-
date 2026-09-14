@@ -23,9 +23,9 @@ const DocumentSchema = new mongoose.Schema(
     },
 
     settings:{
-        pageSetting:{
+        pageSize:{
             type:String,
-            enum:['A4','legal','letter'],
+            enum:['A4','A5','A3','LETTER'],
             default:'A4'
         },
 
@@ -38,19 +38,19 @@ const DocumentSchema = new mongoose.Schema(
         margin:{
             top:{
                 type:Number,
-                default: 72
+                default: 25
             },
             bottom:{
                 type:Number,
-                default:72
+                default:25
             },
              left:{
                 type:Number,
-                default: 72
+                default: 25
             },
             right:{
                 type:Number,
-                default:72
+                default:25
             },
         }
     },

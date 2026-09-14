@@ -2,11 +2,13 @@ import axios from "axios"
 import api from "./api/api"
 import type { allDocumentResponse, createDocumentResponse, deleteDocumentResponse, singleDocumentResponse, upadateDocumentResponse } from "@/types/documentResponse"
 import type { Descendant } from "slate"
+import type { DocumentSettingType } from "@/types/documentSetting"
 
 type updateValue = {
     name?:string,
     description?:string,
-    content?:Descendant[]
+    content?:Descendant[],
+    settings?:DocumentSettingType
 }
 
 

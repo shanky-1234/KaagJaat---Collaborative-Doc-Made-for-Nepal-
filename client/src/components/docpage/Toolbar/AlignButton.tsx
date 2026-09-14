@@ -5,11 +5,10 @@ import { Editor, Element, Transforms } from 'slate'
 interface AlignButtonProps {
     editor:Editor
     align:"left" | "right" | "center" | "justify"
-    children:React.ReactNode
+    children?:React.ReactNode
 }
 
-function AlignButton({editor,align,children}:AlignButtonProps) {
-    const handleAlignment = () =>{
+export const handleAlignment = ({editor,align}:AlignButtonProps) =>{
         Transforms.setNodes(editor,
             {align},
             {
@@ -18,10 +17,13 @@ function AlignButton({editor,align,children}:AlignButtonProps) {
             }
         )
     }
+
+function AlignButton({editor,align,children}:AlignButtonProps) {
+    
   return (
     <Button type='button' onMouseDown={(event) => {
         event.preventDefault()
-        handleAlignment()
+        handleAlignment({editor,align})
       }}>
         {children}
     </Button>

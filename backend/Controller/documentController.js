@@ -117,7 +117,7 @@ const updateDocument = async (req,res)=>{
 
 
 
-    const {name,description,content} = req.body
+    const {name,description,content,settings} = req.body
 
     const updatedData = {}
 
@@ -131,6 +131,10 @@ const updateDocument = async (req,res)=>{
 
     if (description !== undefined){
         updatedData.description = description || "Write Your Description of your document"
+    }
+
+    if (settings !== undefined){
+        updatedData.settings = settings
     }
 
     const updatedDocument = await documentModel.findOneAndUpdate({_id:documentId,ownerUser:userId},{

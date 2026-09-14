@@ -16,10 +16,10 @@ function UndoRedoButton({editor}:{editor:HistoryEditor}) {
   }
   return (
     <div className='flex'>
-        <Button className='cursor-pointer' onClick={undoTask}>
+        <Button className='cursor-pointer' onMouseDown={undoTask}>
             <Undo/>
         </Button>
-        <Button className='cursor-pointer' onClick={redoTask}>
+        <Button className='cursor-pointer' onMouseDown={redoTask}>
             <Redo/>
         </Button>
     </div>
