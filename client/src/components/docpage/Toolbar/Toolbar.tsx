@@ -25,7 +25,7 @@ import LineHeight from "./LineHeight";
 
 function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
   return (
-    <section className="flex items-center gap-2 border p-2 border-neutral-two rounded-2xl mt-4 h-full w-fit">
+    <section className="flex items-center gap-2 border p-2 bg-white border-neutral-two rounded-2xl mt-4 h-full w-fit">
       <UndoRedoButton editor={editor} />
       <div className="block border min-h-[30px] border-neutral-400" />
       <FontFamilyPicker editor={editor} />

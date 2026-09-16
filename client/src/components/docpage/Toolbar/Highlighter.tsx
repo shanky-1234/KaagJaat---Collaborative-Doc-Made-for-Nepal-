@@ -73,8 +73,6 @@ function Highlighter({ editor }: ColorButtonProps) {
   const [hex,setHex] = useState<string>('#111827')
   const [open,setOpen] = useState<boolean>(false)
 
-  console.log(hex)
-
   useEffect(()=>{
     const marks = Editor.marks(editor)
 

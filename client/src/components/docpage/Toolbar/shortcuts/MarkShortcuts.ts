@@ -9,7 +9,7 @@ function MarkShortcuts(
   shortcut: string,
   requireShift = false
 ): boolean {
-    console.log("SHORTCUT EVENT:", event.key, event.ctrlKey);
+    // console.log("SHORTCUT EVENT:", event.key, event.ctrlKey);
   if (!event.ctrlKey || event.key.toLowerCase() !== shortcut || event.shiftKey !== requireShift) {
     return false;
   }

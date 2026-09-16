@@ -154,7 +154,7 @@ function HeaderDocPage({
   const [leftMargin, setLeftMargin] = useState(
     documetMargin.left ? String(documetMargin.left) : "25",
   );
-  console.log(documetMargin.top);
+  // console.log(documetMargin.top);
   const closeSuggestions = useCallback(() => {
     if (debounceTimer.current) {
       window.clearTimeout(debounceTimer.current);
@@ -224,7 +224,7 @@ function HeaderDocPage({
       }
 
       if (/^[\u0900-\u097F]+$/.test(token)) {
-        closeSuggestions();
+        closeSuggestions(); 
         return;
       }
 
