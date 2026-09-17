@@ -30,6 +30,18 @@ function Element({ attributes, children, element }: RenderElementProps) {
         </h3>
       );
 
+    case "page-break":
+      return (
+        <div
+        {...attributes}
+        contentEditable={false}
+        data-type="page-break"
+        className="pointer-events-none select-none"
+          style={{height:0,overflow:'hidden'}}>
+            {children}
+      </div>
+      )
+
     default:
       return (
         <p {...attributes} style={style}>

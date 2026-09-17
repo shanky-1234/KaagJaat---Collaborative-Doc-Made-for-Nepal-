@@ -14,7 +14,7 @@ function Suggestion({
   onSelect,
 }: SuggestionProp) {
   return (
-    <div className="max-w-32 rounded-lg border border-neutral-300 shadow-md overflow-hidden">
+    <div className="max-w-32 rounded-lg border border-neutral-300 shadow-md bg-white overflow-hidden">
       <div className="space-y-1 mb-2">
         {words.map((word, index) => (
           <div

@@ -13,7 +13,7 @@ const DocumentPage = React.forwardRef<HTMLDivElement,DocumentPageProps>(({pageWi
   return (
     <div        
                 ref={ref}
-
+                data-document-page
                 className="border-2 border-neutral-200 bg-white rounded-xl mt-4"
                 style={{
                   width: pageWidth,

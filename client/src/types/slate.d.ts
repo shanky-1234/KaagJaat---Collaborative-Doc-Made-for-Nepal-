@@ -15,9 +15,14 @@ type CustomText = {
 }
 
 type CustomElements = {
-    type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'text',
+    type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'page-break' | 'text',
     align?:'left' | 'right' | 'center' | 'justify',
     lineHeight?: number,
+    children:CustomText[]
+}
+
+type PageBreakModule = {
+    type:'page-break',
     children:CustomText[]
 }
 
@@ -28,3 +33,4 @@ declare module 'slate'{
     Text: CustomText
   }
 }
+
