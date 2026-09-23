@@ -11,7 +11,7 @@ type DashboardLayputProp={
 function DashboardLayout() {
   return (
     <SidebarProvider className="bg-background flex-col">
-      <div className="w-full fixed px-7 bg-white">
+      <div className="w-full z-30 fixed px-7 bg-white">
       <HeaderDashboard/>
       </div>
       <div className="flex pt-14 w-full">

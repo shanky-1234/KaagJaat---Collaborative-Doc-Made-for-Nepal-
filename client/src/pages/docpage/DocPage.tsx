@@ -437,6 +437,7 @@ const handleDocumentMouseDown = (
 
     return (
       <>
+      
         <HeaderDocPage
           title={title}
           onTitleChange={handleTitleChange}
@@ -448,7 +449,7 @@ const handleDocumentMouseDown = (
           documetMargin={documentMargin}
           setDocumentMargin={setDocumentMargin}
         />
-        <main className=" mx-auto rounded-xl h-full pt-8  bg-[#f7f7f7]">
+        <main className="mx-auto rounded-xl h-full pt-32 bg-[#F2F4F4]">
           {loading ? (
             <div>loading...</div>
           ) : (
@@ -462,8 +463,9 @@ const handleDocumentMouseDown = (
       handleChange(value);
     }}
   >
-    <Toolbar editor={editor} />
-
+    <div className="fixed top-20 left-0 z-40 flex h-12 mt-2 w-full items-center justify-center bg-[#F2F4F4]">
+      <Toolbar editor={editor} />
+    </div>
     <div className="relative flex flex-col items-center" onMouseDown={handleDocumentMouseDown}>
       {/* the page sheets: they only draw the paper + the margins */}
       {Array.from({ length: pageCount }).map((_, index) => (

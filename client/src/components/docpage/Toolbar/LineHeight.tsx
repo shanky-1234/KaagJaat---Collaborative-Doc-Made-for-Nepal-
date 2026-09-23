@@ -51,13 +51,19 @@ function LineHeight({ editor }: LineHeightProps) {
   return (
     <div>
       <Select value={value} onValueChange={handleChange}>
-        <SelectTrigger className="w-[110px]">
+        <SelectTrigger className="w-full min-w-24 max-w-28
+    border
+    border-neutral-400
+    focus:border-neutral-400!
+    focus-visible:border-neutral-400!
+    focus-visible:ring-0
+    data-[state=open]:border-neutral-400!">
           <div className="flex items-center gap-2">
             <ArrowDown01 size={14} />
             <SelectValue placeholder="1.5" />
           </div>
         </SelectTrigger>
-        <SelectContent className='bg-white'>
+        <SelectContent align='start' position='popper' side='bottom' className='bg-white border border-neutral-400 ring-0 shadow-md'>
           {lineHeights.map((item) => (
             <SelectItem key={item.value} value={item.value}>
               {item.label}

@@ -9,6 +9,7 @@ const HEADING_SIZES = {
   "heading-one": 48,
   "heading-two": 30,
   "heading-three": 20,
+  "paragraph":16
 }
 
 function FontSizePicker() {
@@ -76,7 +77,7 @@ function FontSizePicker() {
                 <Button type='button' onMouseDown={preventFocusSteal} onClick={decreaseSize}><MinusIcon size={12} /></Button>
             </div>
             <div className='w-fit border border-neutral-400 rounded-xl '>
-                <Input value={inputValue} type='number' className='border-0 w-fit no-spinners px-0 text-center ' onKeyDown={(e) => {
+                <Input value={inputValue} type='number' className='border-0 w-fit no-spinners px-0 text-center focus-visible:border-transparent focus-visible:ring-0 ' onKeyDown={(e) => {
               if (e.key === 'Enter') e.currentTarget.blur()
             }} min={8} max={200} onChange={(e) => setInputValue(e.target.value)} onBlur={handleFontSizeBlur}/>
             </div>  

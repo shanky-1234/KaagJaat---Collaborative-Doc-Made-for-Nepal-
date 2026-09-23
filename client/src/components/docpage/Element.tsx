@@ -2,6 +2,12 @@ import type { RenderElementProps } from "slate-react";
 
 /* Contains Elements: Basically Block Level Contents */
 
+const listStyleClass = {
+  disc: "list-disc",
+  square: "list-square",
+  circle: "list-circle",
+};
+
 function Element({ attributes, children, element }: RenderElementProps) {
   const style: React.CSSProperties = {
     textAlign: element.align ?? "left",
@@ -29,6 +35,34 @@ function Element({ attributes, children, element }: RenderElementProps) {
           {children}
         </h3>
       );
+    
+    case "bulleted-list":
+      return(
+        <ul {...attributes} className={`pl-6`} style={{...style,listStyleType:element.listStyle ?? "disc"}}>
+      {children}
+    </ul>
+      )
+
+    case "numbered-list":
+      return (
+        <ol
+          {...attributes}
+          className="pl-6"
+          style={{
+            ...style,
+            listStyleType: element.listStyle === "numbered" ? "decimal" : (element.listStyle ?? "decimal"),
+          }}
+        >
+          {children}
+        </ol>
+      );
+
+    case "list-item":
+      return(
+        <li {...attributes} style={style}>
+      {children}
+    </li>
+      )
 
     case "page-break":
       return (
@@ -44,7 +78,7 @@ function Element({ attributes, children, element }: RenderElementProps) {
 
     default:
       return (
-        <p {...attributes} style={style}>
+        <p {...attributes} style={{...style,fontSize:'16px'}}>
           {children}
         </p>
       );

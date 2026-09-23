@@ -54,11 +54,21 @@ function FontFamilyPicker({editor}:FontFamilyPickerProps) {
 }
   return (
     <div>
-        <Select value={activeFont} onValueChange={handleFontChange}>
-            <SelectTrigger className="w-full min-w-24 max-w-28">
+        <Select value={activeFont} onValueChange={handleFontChange} >
+           <SelectTrigger
+  className="
+    w-full min-w-24 max-w-28
+    border
+    border-neutral-400
+    focus:border-neutral-400!
+    focus-visible:border-neutral-400!
+    focus-visible:ring-0
+    data-[state=open]:border-neutral-400!
+  "
+>
                 <SelectValue defaultValue={activeFont}/>
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent position="popper" align="start" side="bottom" className="bg-white border border-neutral-400 ring-0 shadow-md">
                 <SelectGroup>
                     <SelectLabel>
                         Featured Fonts

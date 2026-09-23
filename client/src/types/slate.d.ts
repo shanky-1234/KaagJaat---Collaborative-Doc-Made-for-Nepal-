@@ -15,10 +15,11 @@ type CustomText = {
 }
 
 type CustomElements = {
-    type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'page-break' | 'text',
+    type:'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'page-break' | 'text' | 'bulleted-list' | 'numbered-list' | "list-item" ,
     align?:'left' | 'right' | 'center' | 'justify',
     lineHeight?: number,
     children:CustomText[]
+    listStyle?:'disc' | 'circle' | 'square' | 'none' | 'numbered',
 }
 
 type PageBreakModule = {

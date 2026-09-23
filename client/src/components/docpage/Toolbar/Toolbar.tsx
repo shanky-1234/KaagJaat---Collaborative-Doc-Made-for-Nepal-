@@ -1,6 +1,7 @@
 import ElementButton from "../ElementButton";
 import {
   AlignCenter,
+  AlignJustify,
   AlignLeft,
   AlignRight,
   BoldIcon,
@@ -9,6 +10,8 @@ import {
   Heading2,
   Heading3,
   ItalicIcon,
+  List,
+  ListOrdered,
   StrikethroughIcon,
   UnderlineIcon,
 } from "lucide-react";
@@ -22,16 +25,24 @@ import UndoRedoButton from "./UndoRedoButton";
 import { HistoryEditor } from "slate-history";
 import Highlighter from "./Highlighter";
 import LineHeight from "./LineHeight";
+import TextStylePicker from "./TextStylePicker";
+import PageBreakButton from "./PageBreakButton";
+import BulletPointListingButton from "./BulletPointListingButton";
+import OrderedPointsListingButton from "./OrderedPointsListingButton";
 
 function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
   return (
-    <section className="flex items-center gap-2 border p-2 bg-white border-neutral-two rounded-2xl mt-4 h-full w-fit">
+    <section className="flex items-center gap-2 border border-neutral-200 p-1 bg-white rounded-2xl h-full w-fit">
       <UndoRedoButton editor={editor} />
-      <div className="block border min-h-[30px] border-neutral-400" />
+      <div className="block border min-h-[30px] border-neutral-200" />
+      <PageBreakButton editor={editor}/>
+      <div className="block border min-h-[30px] border-neutral-200" />
+      <TextStylePicker/>
+       <div className="block border min-h-[30px] border-neutral-200" />
       <FontFamilyPicker editor={editor} />
-      <div className="block border min-h-[30px] border-neutral-400" />
+      <div className="block border min-h-[30px] border-neutral-200" />
       <FontSizePicker />
-      <div className="block border min-h-[30px] border-neutral-400" />
+      <div className="block border min-h-[30px] border-neutral-200" />
       <Highlighter editor={editor}/>
       <ColorPicker editor={editor} />
       <MarkButton mark="bold" shortcut="b">
@@ -46,17 +57,7 @@ function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
       <MarkButton mark="strikethrough">
         <StrikethroughIcon />
       </MarkButton>
-      <div className="block border min-h-[30px] border-neutral-400" />
-      <ElementButton type="heading-one">
-        <Heading1 />
-      </ElementButton>
-      <ElementButton type="heading-two">
-        <Heading2 />
-      </ElementButton>
-      <ElementButton type="heading-three">
-        <Heading3 />
-      </ElementButton>
-      <div className="block border min-h-[30px] border-neutral-400" />
+   <div className="block border min-h-[30px] border-neutral-200" />
       <LineHeight editor={editor}/>
       <AlignButton editor={editor} align="left">
         <AlignLeft />
@@ -67,6 +68,16 @@ function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
       <AlignButton editor={editor} align="right">
         <AlignRight />
       </AlignButton>
+      <AlignButton editor={editor} align="justify">
+        <AlignJustify/>
+      </AlignButton>
+    <div className="block border min-h-[30px] border-neutral-200" />
+    <BulletPointListingButton editor={editor} bulletType="bulleted-list">
+      <List/>
+    </BulletPointListingButton>
+    <OrderedPointsListingButton editor={editor} bulletType="numbered-list">
+       <ListOrdered/>
+    </OrderedPointsListingButton>
     </section>
   );
 }

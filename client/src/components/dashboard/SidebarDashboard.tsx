@@ -2,15 +2,16 @@ import { Sidebar,SidebarContent,SidebarGroup,SidebarGroupLabel,SidebarHeader, Si
 
 import { ClockIcon, Home, MenuIcon, Paperclip, Plus, UserPlusIcon, type LucideIcon } from 'lucide-react'
 import  Button  from '../shared/Button'
-
-
-function SidebarDashboard() {
+import { useLocation } from 'react-router'
   type menuItems =  {
     position:number,
     title:string,
     url:string,
     icon:LucideIcon
   }
+
+function SidebarDashboard() {
+
   const sidebarMainMenu:menuItems[] = [
     {
       title:"Home",
@@ -37,7 +38,8 @@ function SidebarDashboard() {
       icon:ClockIcon
     },
   ]
-
+  
+  const location = useLocation()
   const {toggleSidebar,state} = useSidebar()
   console.log(state)
   return (
@@ -71,8 +73,8 @@ function SidebarDashboard() {
                     const Icon = items.icon
                     return(
                     <SidebarMenuItem key={items.position}>
-                      <SidebarMenuButton className='flex' >
-                            <Icon color='#BA4800' size={20}/>
+                      <SidebarMenuButton className={`flex ${location.pathname === items.url ? 'bg-primary text-white' :'hover:bg-neutral-100 hover:text-black'} `} >
+                            <Icon color={`${location.pathname === items.url ? '#fff' : '#BA4800'}`} className='hover:text-black' size={20}/>
                             <a href={items.url} className='group-data-[collapsible=icon]:hidden'>{items.title}</a>
                       </SidebarMenuButton>
                       </SidebarMenuItem>

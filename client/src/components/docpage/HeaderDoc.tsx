@@ -299,7 +299,7 @@ function HeaderDocPage({
   );
 
   return (
-    <header className="pt-6 pr-8 pb-3  border-neutral-three flex justify-between items-center w-full border-b-1">
+    <header className="fixed top-0 left-0 z-40 h-20 bg-white pt-6 pr-8 pb-3 mb-2 border-neutral-three flex justify-between items-center w-full border-b-1">
       <div className="px-7 flex items-center gap-4">
         <Button
           size={"icon"}

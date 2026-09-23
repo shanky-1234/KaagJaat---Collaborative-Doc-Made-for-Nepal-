@@ -105,7 +105,7 @@ html, body{
 
 @layer{
   h1{
-   @apply text-4xl md:text-6xl font-bold 
+   @apply text-3xl md:text-[40px] font-bold 
   }
   h2{
     @apply text-[32px] font-bold

@@ -1,4 +1,4 @@
-import { Editor, Node, Path, Transforms, Element as SlateElement } from "slate";
+import { Editor, Node, Path, Transforms, Element as SlateElement, Element, Range } from "slate";
 
 export const withPageBreak = (editor:Editor) =>{
     const {isVoid, normalizeNode} = editor
@@ -36,6 +36,48 @@ export const withPageBreak = (editor:Editor) =>{
 
     normalizeNode(entry);
   };
+
+  const { deleteBackward } = editor;
+
+editor.deleteBackward = (unit) => {
+  const { selection } = editor;
+
+  if (!selection || !Range.isCollapsed(selection)) {
+    deleteBackward(unit);
+    return;
+  }
+
+  const [listItemEntry] = Editor.nodes(editor, {
+    match: (node) =>
+      Element.isElement(node) && node.type === "list-item",
+  });
+
+  if (listItemEntry) {
+    const [, listItemPath] = listItemEntry;
+
+    const text = Editor.string(editor, listItemPath);
+
+    if (text === "") {
+      Transforms.setNodes(
+        editor,
+        { type: "paragraph" },
+        { at: listItemPath }
+      );
+
+      Transforms.unwrapNodes(editor, {
+        at: listItemPath,
+        match: (node) =>
+          Element.isElement(node) &&
+          (node.type === "bulleted-list" || node.type === "numbered-list"),
+        split: true,
+      });
+
+      return;
+    }
+  }
+
+  deleteBackward(unit);
+};
 
   return editor;
 }
