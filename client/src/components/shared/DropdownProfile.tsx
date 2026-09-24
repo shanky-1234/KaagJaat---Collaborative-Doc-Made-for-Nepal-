@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '#hooks/reduxHooks'
 import { userAuthService } from '@/services/userAuth'
 import { setLoading, setLogout, setToken, setUserData } from '@/redux/AuthSlice'
 import { useNavigate } from 'react-router'
+import { clearCurrentSpace } from '@/redux/SpaceSlice'
 
     type DropdownOption = {
         label:string,
@@ -33,12 +34,14 @@ function DropdownProfile() {
 
     const handleLogout = async()=>{
         dispatch(setLoading(true))
+        
         try{
         const response = await userAuthService.userLogout()
         if (response.success){
             localStorage.removeItem("user")
             localStorage.removeItem("token")
             localStorage.removeItem("isAuthenticated")
+            dispatch(clearCurrentSpace())
             dispatch(setLogout())
 
         }

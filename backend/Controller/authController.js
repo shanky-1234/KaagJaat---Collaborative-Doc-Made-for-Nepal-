@@ -3,6 +3,7 @@ const userModel = require('../Models/userModel')
 const jwt = require('jsonwebtoken')
 const bycrypt = require('bcryptjs')
 const generateToken = require('../utils/auth/decodeJWT')
+const spaceModel = require('../Models/spaceModel')
 
 const RegisterUser = async(req,res)=>{
     try {
@@ -35,6 +36,11 @@ const RegisterUser = async(req,res)=>{
             dob,
             purpose
         })
+         const personalSpace = await spaceModel.create({
+            name:`Personal Space`,
+            ownerUser:createUser._id,
+            isPersonal:true
+        })
 
         if(!createUser) {
             return res.status(400).json({
@@ -52,7 +58,8 @@ const RegisterUser = async(req,res)=>{
             email:createUser.email,
             dob:createUser.dob,
             gender:createUser.gender,
-            purpose:createUser.purpose
+            purpose:createUser.purpose,
+            space:personalSpace
         },
         })
 
@@ -106,7 +113,8 @@ const loginUsers = async (req,res) =>{
             email:findUser.email,
             dob:findUser.dob,
             gender:findUser.gender,
-            purpose:findUser.purpose
+            purpose:findUser.purpose,
+            space:findUser.space
         },
         token:generateTokens
     })

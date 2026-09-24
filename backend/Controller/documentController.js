@@ -1,18 +1,33 @@
 const documentModel = require("../Models/documentModel")
+const spaceModel = require("../Models/spaceModel")
 const userModel = require("../Models/userModel")
 
 const createDocuments = async (req,res) =>{
     try {
-        const newDocument = await documentModel.create({
-            ownerUser:req.user.id,
-            name:"New Document"
-        })
 
+        const {spaceId} = req.body
+        const space = await spaceModel.findOne({
+            _id:spaceId,
+            ownerUser:req.user.id, })
+
+            if (!space) {
+            return res.status(404).json({
+                success: false,
+                message: "Personal Space not found"
+            })
+        }
+          const newDocument = await documentModel.create({
+            ownerUser:req.user.id,
+            name:"New Document",
+            space:space._id
+        }
+    )
         await newDocument.populate('ownerUser','_id fullname email')
         return res.status(200).json({
             success:true,
             message:"Document Successfully Created",
-            newDocument
+            newDocument,
+            space
         })
     } catch (error) {
         console.error(error)
@@ -27,6 +42,14 @@ const createDocuments = async (req,res) =>{
 const getDocument = async (req,res)=>{
     try {
         const userId = req.user.id
+        const {spaceId} = req.query
+
+         if (!spaceId) {
+            return res.status(400).json({
+                success: false,
+                message: "Space ID is required"
+            })
+        }
 
         if(!userId) { 
             return res.status(403).json({
@@ -35,7 +58,7 @@ const getDocument = async (req,res)=>{
             })
         }
 
-        const document =await documentModel.find({ownerUser:userId}).populate('ownerUser','_id fullname email')
+        const document =await documentModel.find({ownerUser:userId,space:spaceId}).populate('ownerUser','_id fullname email')
 
         return res.status(200).json({
             success:true,

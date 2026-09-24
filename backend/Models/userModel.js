@@ -34,6 +34,10 @@ const UserModel = new mongoose.Schema({
         enum:['Personal Works','Nepali Note AI','Government Works'],
         default:'Personal Works'
     },
+     space:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"space",
+    },
     createdAt:{
         type:Date,
         default:Date.now()
@@ -41,7 +45,7 @@ const UserModel = new mongoose.Schema({
     documents:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"documents"
-    }
+    },
 },{timestamps:true})
 
 module.exports = mongoose.model("users",UserModel)

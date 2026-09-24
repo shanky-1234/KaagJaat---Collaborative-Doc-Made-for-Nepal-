@@ -1,8 +1,12 @@
-import { Sidebar,SidebarContent,SidebarGroup,SidebarGroupLabel,SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '../ui/sidebar'
+import { Sidebar,SidebarContent,SidebarFooter,SidebarGroup,SidebarGroupLabel,SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '../ui/sidebar'
 
 import { ClockIcon, Home, MenuIcon, Paperclip, Plus, UserPlusIcon, type LucideIcon } from 'lucide-react'
 import  Button  from '../shared/Button'
 import { useLocation } from 'react-router'
+import { Popover, PopoverContent, PopoverHeader, PopoverTrigger } from '#components/ui/popover'
+import { Avatar, AvatarFallback } from '#components/ui/avatar'
+import SpacePickerFooter from './SpacePickerFooter'
+import { useEffect } from 'react'
   type menuItems =  {
     position:number,
     title:string,
@@ -11,6 +15,8 @@ import { useLocation } from 'react-router'
   }
 
 function SidebarDashboard() {
+
+  
 
   const sidebarMainMenu:menuItems[] = [
     {
@@ -43,7 +49,7 @@ function SidebarDashboard() {
   const {toggleSidebar,state} = useSidebar()
   console.log(state)
   return (
-    <Sidebar className='border-none pt-2 mx-2 top-20 h-[calc(100vh-3.2rem)] bg-background md:bg-white' collapsible='icon'>
+    <Sidebar className='border-none pt-2 mx-2 top-20 h-[calc(100vh-5rem)] bg-background md:bg-white' collapsible='icon'>
         {/* <SidebarHeader>
           <div className='flex items-center gap-4'>
           
@@ -58,7 +64,7 @@ function SidebarDashboard() {
             <SidebarGroup>
                <Button className='bg-primary rounded text-white flex justify-center '>
                 <div className='flex items-center gap-2'>
-                  <span className='group-data-[collapsible=icon]:hidden'>New</span>
+                  <span className='group-data-[collapsible=icon]:hidden'>New Document</span>
                   <Plus/>
                 </div>
                </Button>
@@ -90,6 +96,9 @@ function SidebarDashboard() {
               </SidebarMenu>
             </SidebarGroup>
           </SidebarContent>
+       <SidebarFooter>
+      <SpacePickerFooter/>
+</SidebarFooter>
     </Sidebar>
   )
 }

@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router'
 
 function ProtectedRoutes() {
     const {isAuthenticated,jwtToken} = useAppSelector(state=>state.auth)
-    if (!isAuthenticated && !jwtToken){
+    if (!isAuthenticated || !jwtToken){
         return <Navigate to='/auth/login' replace/>
     }
   return (

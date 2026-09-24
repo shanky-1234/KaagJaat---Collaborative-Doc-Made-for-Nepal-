@@ -13,9 +13,11 @@ type updateValue = {
 
 
 export const documentHandler = {
-    createDocument:async():Promise<createDocumentResponse>=>{
+    createDocument:async(spaceId:string | undefined):Promise<createDocumentResponse>=>{
         try {
-           const response = await api.post('document/createNewDocument')
+           const response = await api.post('document/createNewDocument',{
+            spaceId
+           })
            return response.data
         } catch (error) {
             console.error(error)
@@ -37,9 +39,11 @@ export const documentHandler = {
             throw error
         }
     },
-    getAllDocuments:async():Promise<allDocumentResponse>=>{
+    getAllDocuments:async(spaceId:string | undefined):Promise<allDocumentResponse>=>{
         try {
-            const response = await api.get('document/getDocuments')
+            const response = await api.get('document/getDocuments',{
+                params:{spaceId}                
+            })
             return response.data
         } catch (error) {
              console.error(error)

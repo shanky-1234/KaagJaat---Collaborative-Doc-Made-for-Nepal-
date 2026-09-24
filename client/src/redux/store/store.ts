@@ -1,11 +1,13 @@
 import  {configureStore} from '@reduxjs/toolkit'
 import authReducer from '../AuthSlice'
+import spaceReducer from '../SpaceSlice'
 
 export const store = configureStore({
 
     
     reducer:{
-        auth:authReducer
+        auth:authReducer,
+        space:spaceReducer
     }
     
 })

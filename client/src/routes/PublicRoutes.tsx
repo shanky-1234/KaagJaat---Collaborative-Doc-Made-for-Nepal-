@@ -3,8 +3,8 @@ import React from 'react'
 import { Navigate, Outlet } from 'react-router'
 
 function PublicRoutes() {
-  const {isAuthenticated,userData, jwtToken} = useAppSelector(state=>state.auth)
-    if (isAuthenticated && userData && jwtToken) {
+  const {isAuthenticated,jwtToken} = useAppSelector(state=>state.auth)
+    if (isAuthenticated && jwtToken) {
         return <Navigate to='/' replace/>
     } 
     return (

@@ -79,6 +79,12 @@ const DocumentSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
+
+    space:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:'space',
+      required:true
+    },
     updatedAt: {
       type: Date,
       default: Date.now(),
@@ -86,7 +92,7 @@ const DocumentSchema = new mongoose.Schema(
     lastEditedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'users'
-    }
+    },
   },
   { timestamps: true },
 );

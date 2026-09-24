@@ -36,7 +36,7 @@ function DashboardHome() {
   ];
 
   const navigate = useNavigate();
-
+  const currentSpace = useAppSelector((state)=>state.space.currentSpace)
   const { userData } = useAppSelector((state) => state.auth);
 
   const [userDocuments, setUserDocument] = useState<DocumentResponse[]>([]);
@@ -53,8 +53,10 @@ function DashboardHome() {
   })
 
   const getAllDocument = async () => {
+      if (!currentSpace?._id) return;
     try {
-      const response = await documentHandler.getAllDocuments();
+     
+      const response = await documentHandler.getAllDocuments(currentSpace?._id);
       if (response.success) {
         setUserDocument(response?.allDocument);
       }
@@ -65,13 +67,14 @@ function DashboardHome() {
   };
 
   useEffect(() => {
+     if (!currentSpace?._id) return;
     getAllDocument();
     console.log(userDocuments);
-  }, []);
+  }, [currentSpace?._id]);
 
   const handleCreateDocument = async () => {
     try {
-      const response = await documentHandler.createDocument();
+      const response = await documentHandler.createDocument(currentSpace?._id);
       if (response.success) {
         navigate(`/documents/n/${response?.newDocument._id}`);
       }

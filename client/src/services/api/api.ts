@@ -1,4 +1,5 @@
 import { store } from '@/redux/store/store'
+import {setLogout} from '@/redux/AuthSlice'
 import axios from 'axios'
 
 const api = axios.create({
@@ -25,5 +26,14 @@ const api = axios.create({
 
         return config
     })
+
+// Handle Token Expiration
+api.interceptors.response.use((response) => response , 
+(error)=>{
+    if (error.response?.status === 403){
+        store.dispatch(setLogout())
+    }
+       return Promise.reject(error)
+})
 
 export default api
