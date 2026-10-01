@@ -15,7 +15,17 @@ const SpaceSchema = new mongoose.Schema({
     isPersonal:{
         type:Boolean,
         required:false
-    }
+    },
+    purpose:{
+        type:String,
+        enum:['personal','education','office','government'],
+        default:'personal'
+    },
+    visibility: {
+    type: String,
+    enum: ["private", "restricted", "public"],
+    default: "private"
+  }
 },{timestamps:true})
 
 module.exports = mongoose.model("space",SpaceSchema)

@@ -3,7 +3,7 @@ const spaceModel = require("../Models/spaceModel")
 const createSpace = async(req,res) =>{
     try {
         const userId = req.user.id
-        const {name} = req.body
+        const {name , purpose, visibility} = req.body
 
         if (!name){
             return res.status(403).json({
@@ -14,7 +14,7 @@ const createSpace = async(req,res) =>{
 
         const findSpaceById = await spaceModel.findOne({ownerUser:userId,name:name.trim()})
 
-        if (name === findSpaceById.name){
+        if (findSpaceById){
             return res.status(401).json({
                 success:false,
                 message:"Same Name Workspace already exists choose different"
@@ -23,7 +23,9 @@ const createSpace = async(req,res) =>{
         const newSpace = await spaceModel.create({
             name:name,
             ownerUser:userId,
-            isPersonal:true
+            isPersonal:true,
+            purpose,
+            visibility
         })
 
         return res.status(200).json({

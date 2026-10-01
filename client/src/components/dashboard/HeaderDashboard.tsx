@@ -19,9 +19,7 @@ function HeaderDashboard() {
               <img src={logo} alt="logo" className='w-full h-full object-contain'/>
             </div>
             </div>
-      <div className='hidden md:block'>
-       <Input icon={Search} placeholder='Global Search'/>
-       </div>
+      
        <div className='flex items-center flex-row-reverse gap-8'>
         {
       <Profile/>

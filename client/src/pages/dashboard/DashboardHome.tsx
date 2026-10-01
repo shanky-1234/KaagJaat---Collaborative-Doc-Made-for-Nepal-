@@ -1,26 +1,23 @@
-import DashboardCardCreate from "#components/dashboard/DashboardCardCreate";
-import React, { useEffect, useState } from "react";
-import notepage from "../../assets/elements/notepage.svg";
-import folder from "../../assets/elements/foldericon.svg";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import { useAppSelector } from "#hooks/reduxHooks";
-import { documentHandler } from "@/services/documentHandler";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import DocumentCard from "#components/dashboardCards/DocumentCard";
-import type { DocumentResponse } from "@/types/documentResponse";
-import morningArt from "../../assets/headerElements/morning.png";
+import DocumentCardList from "#components/dashboardCards/DocumentCardList";
 import { Tabs, TabsList, TabsTrigger } from "#components/ui/tabs";
 import { Button } from "#components/ui/button";
-import { FileText, ListFilter, Plus } from "lucide-react";
+import { FileText, Grid3X3, List, ListFilter, Plus } from "lucide-react";
 import DashboardHero from "#components/dashboard/DashboardHero";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "#components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "#components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#components/ui/select";
+import { UseHandleDocuments } from "#hooks/useHandleDocuments";
+import { folderService } from "@/services/folderHandler";
+import FolderCard from "#components/dashboardCards/FolderCard";
+import FolderCardList from "#components/dashboardCards/FolderCardList";
+import { useNavigate } from "react-router";
+import type { folderResponseProps } from "@/types/folder";
+import { documentHandler } from "@/services/documentHandler";
 
-function DashboardHome() {
-  const [active, setActive] = useState<string>("recentDoc");
-  const [sortBy, setSortby] = useState<string>("latest")
-
-  const options = [
+ const options = [
     {
       label: "Recent Documents",
       value: "recentDoc",
@@ -35,11 +32,27 @@ function DashboardHome() {
     },
   ];
 
-  const navigate = useNavigate();
-  const currentSpace = useAppSelector((state)=>state.space.currentSpace)
+function DashboardHome() {
+  const navigate = useNavigate()
+
+  const [loading,setLoading] = useState<boolean>(false)
+  const [name,setName]=useState<string>('')
+  const [active, setActive] = useState<string>("recentDoc");
+  const [sortBy, setSortby] = useState<string>("latest")
+  const [documentView, setDocumentView] = useState<"grid" | "list">("grid");
+  const [folderView, setFolderView] = useState<"grid" | "list">("grid");
+
+  const [folders,setFolders] = useState<folderResponseProps[]>()
+
   const { userData } = useAppSelector((state) => state.auth);
 
-  const [userDocuments, setUserDocument] = useState<DocumentResponse[]>([]);
+  const { handleCreateDocument,
+        getAllDocument,
+        handleDocumentRouting,
+        handleDocumentDelete,
+        userDocuments,
+      currentSpace} = UseHandleDocuments()
+
   const sortedDocuments = [...userDocuments].sort((a,b)=>{
       const dateA = new Date(a.updatedAt).getTime()
       const dateB = new Date(b.updatedAt).getTime()
@@ -52,55 +65,55 @@ function DashboardHome() {
 
   })
 
-  const getAllDocument = async () => {
-      if (!currentSpace?._id) return;
-    try {
-     
-      const response = await documentHandler.getAllDocuments(currentSpace?._id);
-      if (response.success) {
-        setUserDocument(response?.allDocument);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(`${error}`);
-    }
-  };
-
   useEffect(() => {
      if (!currentSpace?._id) return;
     getAllDocument();
-    console.log(userDocuments);
+    console.log(userDocuments)
+    let isActive = true;
+
+    folderService.getFolder(currentSpace._id)
+      .then((response) => {
+        if (isActive && response.success) setFolders(response.folders);
+      })
+      .catch(console.error);
+
+    return () => {
+      isActive = false;
+    };
+    // getAllDocument is supplied by the dashboard document hook.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSpace?._id]);
 
-  const handleCreateDocument = async () => {
+  const handleFolderOpen = (id:string)=>{
+    navigate(`/myFolder/${id}`)
+  }
+
+  const handleMoveToFolder = async({documentId,folderId} : {documentId:string,folderId:string | null}) =>{
+    setLoading(true)
     try {
-      const response = await documentHandler.createDocument(currentSpace?._id);
+      const response = await documentHandler.moveDocument(documentId,folderId)
       if (response.success) {
-        navigate(`/documents/n/${response?.newDocument._id}`);
+          toast.success(`Successfully Moved to`)
+          getAllDocument()
       }
     } catch (error) {
-      console.error(error);
-      toast.error(`${error}`);
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
-  const handleDocumentRouting = (id: string) => {
-    navigate(`/documents/n/${id}`);
-  };
-
-  const handleDocumentDelete = async (e: any, id: string) => {
+    const handleRenameFolder = async (folderId:string, newName:string) =>{
     try {
-      e.stopPropagation();
-      const response = await documentHandler.deleteDocument(id);
-      if (response.success) {
-        getAllDocument();
-        toast.success(`Deleted Successfully`);
-      }
+        const response = await folderService.renameFolder({name:newName,folderId})
+        if (response.success){
+            toast.success("Successfully Renamed Folder")
+            setFolders((prev)=>prev?.map((folder)=>folder._id === folderId ? {...folder,name:newName} : folder))
+        }
     } catch (error) {
-      console.error(error);
-      toast.error(`${error}`);
+        console.error(error)
     }
-  };
+  }
   return (
     <main className="mt-8 mx-8">
       <ToastContainer
@@ -166,6 +179,33 @@ function DashboardHome() {
               ))}
             </TabsList>
           </Tabs>
+          <div className="flex items-center gap-2">
+          {(active === "recentDoc" || active === "myFolder") && (
+            <div className="flex rounded-lg bg-neutral-100 p-1" aria-label={`${active === "myFolder" ? "Folder" : "Document"} view`}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Grid view"
+                aria-pressed={(active === "myFolder" ? folderView : documentView) === "grid"}
+                onClick={() => active === "myFolder" ? setFolderView("grid") : setDocumentView("grid")}
+                className={`h-8 w-8 cursor-pointer ${(active === "myFolder" ? folderView : documentView) === "grid" ? "bg-white text-primary shadow-sm" : "text-neutral-500"}`}
+              >
+                <Grid3X3 size={16} />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="List view"
+                aria-pressed={(active === "myFolder" ? folderView : documentView) === "list"}
+                onClick={() => active === "myFolder" ? setFolderView("list") : setDocumentView("list")}
+                className={`h-8 w-8 cursor-pointer ${(active === "myFolder" ? folderView : documentView) === "list" ? "bg-white text-primary shadow-sm" : "text-neutral-500"}`}
+              >
+                <List size={16} />
+              </Button>
+            </div>
+          )}
           <Select defaultValue={sortBy} onValueChange={setSortby}>
             <SelectTrigger
               className="
@@ -181,7 +221,7 @@ function DashboardHome() {
             >
               <div className="flex gap-2 items-center p-2 rounded-xl">
               <ListFilter size={14}/>
-              <span className="text-sm">Sort By</span>
+              <SelectValue/>
               </div>
             </SelectTrigger>
             <SelectContent 
@@ -202,28 +242,52 @@ function DashboardHome() {
               </SelectItem>
             </SelectContent>
           </Select>
+          </div>
         </div>
       </section>
 
       <section>
         {active === "recentDoc" && (
-          <div className="grid lg:grid-cols-4 md:grid-cols-3 gap-4">
-            {sortedDocuments.map((document) => {
-              return (
-                <DocumentCard
+          documentView === "list" ? (
+            <div className="flex flex-col gap-3">
+              {sortedDocuments.map((document) => (
+                <DocumentCardList
                   key={document._id}
                   title={document.name}
                   content={document.content}
                   author={document.ownerUser.fullname}
                   date={document.updatedAt}
                   onClick={() => handleDocumentRouting(document._id)}
-                  onClickDelete={(e: any) =>
+                  onClickDelete={(e: ReactMouseEvent<HTMLDivElement>) =>
                     handleDocumentDelete(e, document._id)
                   }
+
                 />
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {sortedDocuments.map((document) => (
+                <DocumentCard
+                  key={document._id}
+                  title={document.name}
+                  content={document.content}
+                  author={document.ownerUser.fullname}
+                  date={document.updatedAt}
+                  folder={document.folder}
+                  folders={folders}
+                  onMoveToFolder={(folderId)=>handleMoveToFolder({documentId:document._id,
+                    folderId
+                  })}
+                  onClick={() => handleDocumentRouting(document._id)}
+                  onClickDelete={(e: ReactMouseEvent<HTMLDivElement>) =>
+                    handleDocumentDelete(e, document._id)
+                  }
+                  
+                />
+              ))}
+            </div>
+          )
         )}
         {active === "sharedWithMe" && (
           <div className="grid lg:grid-cols-4 md:grid-cols-3 gap-4">
@@ -231,9 +295,36 @@ function DashboardHome() {
           </div>
         )}
         {active === "myFolder" && (
-          <div className="grid lg:grid-cols-4 md:grid-cols-3 gap-4">
-            No Folders created !
-          </div>
+          folders?.length ? (
+            folderView === "grid" ? (
+              <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {folders.map((folder) => (
+                  <FolderCard
+                    key={folder._id}
+                    title={folder.name}
+                    date={folder.updatedAt}
+                    onClick={()=>handleFolderOpen(folder._id)}
+                    onRename={(newName)=>handleRenameFolder(folder._id,newName)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {folders.map((folder) => (
+                  <FolderCardList
+                    key={folder._id}
+                    title={folder.name}
+                    date={folder.updatedAt}
+                    onClick={()=>handleFolderOpen(folder._id)}
+                  />
+                ))}
+              </div>
+            )
+          ) : (
+            <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+              No folders created yet.
+            </div>
+          )
         )}
       </section>
     </main>

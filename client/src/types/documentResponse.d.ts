@@ -1,5 +1,6 @@
 import type { Descendant } from "slate"
 import type { DocumentMargins, DocumentOrientation, PageSizes } from "./documentSetting"
+import type { folderResponseProps } from "./folder"
 
 type Collaborators = {
     user:string,
@@ -27,6 +28,9 @@ type DocumentResponse = {
     createdAt:string,
     collaborators:Collaborators,
     ownerUser:OwnerUser,
+    folder:folderResponseProps,
+    isTrash:boolean,
+    trashDate:string,
     updatedAt:string,
     lastEditedBy:string
 }

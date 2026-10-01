@@ -8,6 +8,9 @@ import ProtectedRoutes from './routes/ProtectedRoutes'
 import PublicRoutes from './routes/PublicRoutes'
 import RegisterPage from './pages/authPage/RegisterPage'
 import { ToastContainer} from 'react-toastify';
+import AllDocument from './pages/dashboard/AllDocument'
+import FolderPage from './pages/dashboard/FolderPage'
+import TrashDocument from './pages/dashboard/TrashDocument'
 
 function App() {
 
@@ -16,6 +19,9 @@ function App() {
       <Route element={<ProtectedRoutes/>}>
       <Route element={<DashboardLayout/>}>
           <Route path='/' element={<DashboardHome/>}/>
+          <Route path='/myDocs' element={<AllDocument/>} />
+          <Route path='/myFolder/:folderId' element={<FolderPage/>} />
+          <Route path='/trash' element={<TrashDocument/>} />
       </Route>
       <Route element={<DocPageLayout/>}>
           <Route path='/documents/n/:id' element={<DocPage/>}/>

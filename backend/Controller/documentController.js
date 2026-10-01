@@ -1,6 +1,8 @@
 const documentModel = require("../Models/documentModel")
+const folderModel = require("../Models/folderModel")
 const spaceModel = require("../Models/spaceModel")
 const userModel = require("../Models/userModel")
+const mongoose = require("mongoose")
 
 const createDocuments = async (req,res) =>{
     try {
@@ -58,7 +60,7 @@ const getDocument = async (req,res)=>{
             })
         }
 
-        const document =await documentModel.find({ownerUser:userId,space:spaceId}).populate('ownerUser','_id fullname email')
+        const document =await documentModel.find({ownerUser:userId,space:spaceId,isTrash:{$ne:true}}).populate('ownerUser','_id fullname email').populate('folder')
 
         return res.status(200).json({
             success:true,
@@ -124,10 +126,10 @@ const updateDocument = async (req,res)=>{
     const userId = req.user.id
     const documentId = req.params.id  
 
-    if (!documentId) {
-        return res.status(404).json({
+    if (!documentId || !mongoose.isValidObjectId(documentId)) {
+        return res.status(400).json({
             success:false,
-            message:"Document Not Found"
+            message:"A valid document ID is required"
         })
     }
 
@@ -140,15 +142,23 @@ const updateDocument = async (req,res)=>{
 
 
 
-    const {name,description,content,settings} = req.body
+    const {name,description,content,settings} = req.body || {}
 
     const updatedData = {}
 
     if (name !== undefined){
-        updatedData.name = name || "Untitled Document"
+        updatedData.name = typeof name === "string" && name.trim()
+            ? name.trim()
+            : "Untitled Document"
     }
 
     if (content !== undefined){
+        if (!Array.isArray(content)) {
+            return res.status(400).json({
+                success:false,
+                message:"Document content must be an array"
+            })
+        }
         updatedData.content = content 
     }
 
@@ -157,7 +167,47 @@ const updateDocument = async (req,res)=>{
     }
 
     if (settings !== undefined){
-        updatedData.settings = settings
+        if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+            return res.status(400).json({
+                success:false,
+                message:"Document settings must be an object"
+            })
+        }
+
+        if (settings.pageSize !== undefined) {
+            updatedData["settings.pageSize"] = settings.pageSize
+        }
+        if (settings.orientation !== undefined) {
+            updatedData["settings.orientation"] = settings.orientation
+        }
+        if (settings.margin !== undefined) {
+            if (!settings.margin || typeof settings.margin !== "object" || Array.isArray(settings.margin)) {
+                return res.status(400).json({
+                    success:false,
+                    message:"Document margins must be an object"
+                })
+            }
+
+            for (const side of ["top", "right", "bottom", "left"]) {
+                if (settings.margin[side] !== undefined) {
+                    const margin = Number(settings.margin[side])
+                    if (!Number.isFinite(margin) || margin < 0) {
+                        return res.status(400).json({
+                            success:false,
+                            message:`Margin ${side} must be a non-negative number`
+                        })
+                    }
+                    updatedData[`settings.margin.${side}`] = margin
+                }
+            }
+        }
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+        return res.status(400).json({
+            success:false,
+            message:"No valid document fields were provided"
+        })
     }
 
     const updatedDocument = await documentModel.findOneAndUpdate({_id:documentId,ownerUser:userId},{
@@ -165,12 +215,12 @@ const updateDocument = async (req,res)=>{
     },{
         new:true,
         runValidators:true
-    }).populate('ownerUser','_id fullname email')
+    }).populate('ownerUser','_id fullname email').populate('folder','_id name')
 
     if(!updatedDocument){
-        return res.status(401).json({
+        return res.status(404).json({
             success:false,
-            message:"Update Document Failed"
+            message:"Document not found or you do not have permission to update it"
         })
     }
 
@@ -182,9 +232,13 @@ const updateDocument = async (req,res)=>{
     })  
     }catch(error){
         console.error(error)
-        return res.status(500).json({
+
+        const isValidationError = error instanceof mongoose.Error.ValidationError
+            || error instanceof mongoose.Error.CastError
+
+        return res.status(isValidationError ? 400 : 500).json({
             success:false,
-            message:"Internal Server Error"
+            message:isValidationError ? error.message : "Internal Server Error"
         })
     }
 }
@@ -201,7 +255,7 @@ const deleteDocument = async (req,res) =>{
         })
     }
 
-    const deleteDocument = await documentModel.findByIdAndDelete({_id:docId,ownerUser:userId})
+    const deleteDocument = await documentModel.findOne({_id:docId,ownerUser:userId})
 
     if(!deleteDocument){
         return res.status(403).json({
@@ -210,6 +264,12 @@ const deleteDocument = async (req,res) =>{
         })
     }
 
+    deleteDocument.isTrash = true
+    deleteDocument.trashDate = new Date()
+    deleteDocument.folder = null
+
+    await deleteDocument.save()
+
     return res.status(200).json({
         success:true,
         message:"Document Deleted Successfully!",
@@ -217,11 +277,94 @@ const deleteDocument = async (req,res) =>{
     })
 }
 catch (error){
-    return res.status(404).json({
-            success:false,
-            message:"Document Not Found"
-        })
+        console.error(error)
+
+    return res.status(500).json({
+        success:false,
+        message: error.message
+    })
 }
 }
 
-module.exports = {createDocuments,getDocument,getSingleDocument,updateDocument,deleteDocument}
+const moveDocument =   async (req,res) =>{
+    try {
+        const {documentId} = req.params
+        const userId = req.user.id
+        const {folderId} = req.body
+
+        const document = await documentModel.findOne({
+            _id:documentId,
+            ownerUser:userId
+        })
+
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Document not found",
+      });
+    }
+
+     if (folderId === null) {
+      document.folder = null;
+      await document.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Document moved successfully",
+        document,
+      });
+    }
+
+    const folder = await folderModel.findOne({
+      _id: folderId,
+      ownerUser: req.user.id,
+      space: document.space,
+    });
+
+    if (!folder) {
+      return res.status(404).json({
+        success: false,
+        message: "Folder not found in this space",
+      });
+    }
+
+    document.folder = folder._id
+    await document.save()
+
+       return res.status(200).json({
+      success: true,
+      message: "Document moved successfully",
+      document,
+    });
+
+    } catch (error) {
+        return res.status(500).json({
+      success: false,
+      message: "Failed to move document",
+      error: error.message,
+    });
+    }
+}
+
+const getTrashDocument = async (req,res) =>{
+    try {
+        const userId = req.user.id
+
+        const trashDocument =  await documentModel.find({ownerUser:userId,isTrash:true}).populate('ownerUser','_id fullname email').populate('folder')
+          return res.status(200).json({
+            success: true,
+            message: "Trash Documents Retrieved",
+            trashDocument
+        })
+
+    } catch (error) {
+     console.error(error)
+      return res.status(500).json({
+      success: false,
+      message: "Failed to move document",
+      error: error.message,
+    });
+    }
+}
+module.exports = {createDocuments,getDocument,getSingleDocument,updateDocument,deleteDocument,moveDocument,getTrashDocument}

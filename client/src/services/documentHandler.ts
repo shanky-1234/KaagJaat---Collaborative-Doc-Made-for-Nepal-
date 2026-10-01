@@ -11,6 +11,11 @@ type updateValue = {
     settings?:DocumentSettingType
 }
 
+type moveDocumentResponse = {
+    success:boolean,
+    message:string
+}
+
 
 export const documentHandler = {
     createDocument:async(spaceId:string | undefined):Promise<createDocumentResponse>=>{
@@ -65,12 +70,36 @@ export const documentHandler = {
             throw error
         }       
     },
+    moveDocument:async(id:string,folderId:string | null):Promise<moveDocumentResponse>=>{
+        try {
+            const response = await api.patch(`document/${id}/move`,{folderId})
+            return response.data
+        } catch (error) {
+            console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message)
+            }
+            throw error
+        }
+    },
     deleteDocument:async(id:string):Promise<deleteDocumentResponse>=>{
         try {
             const response = await api.delete(`document/deleteDocuments/${id}`)
             return response.data
         } catch (error) {
              console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message)
+            }
+            throw error
+        }
+    },
+    getTrashDocument:async() =>{
+        try {
+            const response = await api.get('document/trash')
+            return response.data
+        } catch (error) {
+            console.error(error)
             if (axios.isAxiosError(error)){
                 throw new Error(error?.response?.data.message)
             }

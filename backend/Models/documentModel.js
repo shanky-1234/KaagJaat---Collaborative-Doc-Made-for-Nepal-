@@ -85,6 +85,20 @@ const DocumentSchema = new mongoose.Schema(
       ref:'space',
       required:true
     },
+
+    folder:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:'folders',
+      default:null
+    },
+    isTrash:{
+      type:Boolean,
+      default:false
+    },
+    trashDate:{
+      type:Date,
+      default:null
+    },
     updatedAt: {
       type: Date,
       default: Date.now(),
