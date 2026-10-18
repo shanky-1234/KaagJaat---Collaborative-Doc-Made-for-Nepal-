@@ -38,3 +38,9 @@ type getSingleFolderResponse = {
     message:string,
     folder:folderResponseProps
 }
+
+type folderActionResponse = {
+    success:boolean,
+    message:string,
+    folder?:folderResponseProps
+}

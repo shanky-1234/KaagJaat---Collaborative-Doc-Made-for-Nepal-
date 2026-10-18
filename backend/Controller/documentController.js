@@ -266,7 +266,6 @@ const deleteDocument = async (req,res) =>{
 
     deleteDocument.isTrash = true
     deleteDocument.trashDate = new Date()
-    deleteDocument.folder = null
 
     await deleteDocument.save()
 
@@ -320,6 +319,7 @@ const moveDocument =   async (req,res) =>{
       _id: folderId,
       ownerUser: req.user.id,
       space: document.space,
+      isTrash:{$ne:true}
     });
 
     if (!folder) {
@@ -348,10 +348,19 @@ const moveDocument =   async (req,res) =>{
 }
 
 const getTrashDocument = async (req,res) =>{
+    
     try {
         const userId = req.user.id
+         const { spaceId } = req.query
 
-        const trashDocument =  await documentModel.find({ownerUser:userId,isTrash:true}).populate('ownerUser','_id fullname email').populate('folder')
+         if (!spaceId) {
+            return res.status(400).json({
+                success: false,
+                message: "Space ID is required"
+            });
+        }
+
+        const trashDocument =  await documentModel.find({ownerUser:userId,space:spaceId,isTrash:true}).populate('ownerUser','_id fullname email').populate('folder')
           return res.status(200).json({
             success: true,
             message: "Trash Documents Retrieved",
@@ -367,4 +376,65 @@ const getTrashDocument = async (req,res) =>{
     });
     }
 }
-module.exports = {createDocuments,getDocument,getSingleDocument,updateDocument,deleteDocument,moveDocument,getTrashDocument}
+
+const restoreDocument = async(req,res) =>{
+    try {
+        const userId = req.user.id
+         const docId = req.params.docId
+        const findDocument = await documentModel.findOne({_id:docId,ownerUser:userId,isTrash:true})
+
+        if (!findDocument) {
+            return res.status(404).json({
+                success:false,
+                message:"Document Not Found"
+            })
+        }
+
+        findDocument.isTrash = false
+        findDocument.trashDate = null;
+        await findDocument.save()
+
+        return res.status(200).json({
+        success:true,
+        message:"Document Restored Successfully!",
+    })
+    } catch (error) {
+          console.error(error)
+      return res.status(500).json({
+      success: false,
+      message: "Failed to move document",
+      error: error.message,
+    });
+    }
+}
+
+const deletePermanently = async(req,res) =>{
+    try {
+        const userId = req.user.id
+        const docId = req.params.docId
+
+        const deleteDocumentPermanently = await documentModel.findOneAndDelete({_id:docId,ownerUser:userId,isTrash:true})
+
+        if (!deleteDocumentPermanently){
+            return res.status(404).json({
+                success:false,
+                message:"Document Not Found"
+            })
+        }
+
+         return res.status(200).json({
+        success:true,
+        message:"Document Permanently Deleted!",
+    })
+
+
+    } catch (error) {
+               console.error(error)
+      return res.status(500).json({
+      success: false,
+      message: "Failed to move document",
+      error: error.message,
+    });
+    }
+}
+module.exports = {createDocuments,getDocument,getSingleDocument,updateDocument,deleteDocument,moveDocument,getTrashDocument,restoreDocument,deletePermanently}

@@ -1,11 +1,15 @@
 import { formatDateandTime } from "@/utils/dateandtime/formatDateandTime";
-import { Clock, EllipsisVertical, FileText } from "lucide-react";
+import { Clock, EllipsisVertical, FileText, Trash } from "lucide-react";
+import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "#components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "#components/ui/dropdown-menu";
 
 type FolderCardListProps = {
   title: string;
   date: string;
   documentCount?: number;
   onClick?: () => void;
+  onDelete?: () => void;
 };
 
 function FolderCardList({
@@ -13,7 +17,10 @@ function FolderCardList({
   date,
   documentCount = 3,
   onClick,
+  onDelete,
 }: FolderCardListProps) {
+  const [showDelete, setShowDelete] = useState(false);
+
   return (
     <div
       role="button"
@@ -47,14 +54,56 @@ function FolderCardList({
           Edited {formatDateandTime(date)}
         </span>
       </div>
-      <button
-        type="button"
-        aria-label={`More options for ${title}`}
-        className="shrink-0 rounded-full p-1 text-neutral-500 hover:bg-neutral-100"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <EllipsisVertical size={17} />
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label={`More options for ${title}`}
+          className="shrink-0 rounded-full p-1 text-neutral-500 hover:bg-neutral-100"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <EllipsisVertical size={17} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-white border-1 border-neutral-300 ring-0! outline-0!">
+          <DropdownMenuItem
+            className="ring-0 outline-0 border-0 cursor-pointer"
+            onClick={(event) => {
+              event.stopPropagation();
+              setShowDelete(true);
+            }}
+          >
+            <Trash size={14} />
+            <span>Move to Trash</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent
+          className="bg-white ring-0 border border-neutral-200"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-primary text-primary">
+              Move Folder to Trash
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Move "{title}" and its documents to trash? You can restore them from Trash.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="bg-neutral-100 border-0">
+            <AlertDialogCancel className="bg-primary text-white cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="cursor-pointer"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete?.();
+              }}
+            >
+              Move to Trash
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

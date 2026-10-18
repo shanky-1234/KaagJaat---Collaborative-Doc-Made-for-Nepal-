@@ -94,12 +94,36 @@ export const documentHandler = {
             throw error
         }
     },
-    getTrashDocument:async() =>{
+    getTrashDocument:async(spaceId:string | undefined) =>{
         try {
-            const response = await api.get('document/trash')
+            const response = await api.get(`document/trash?spaceId=${spaceId}`)
             return response.data
         } catch (error) {
             console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message)
+            }
+            throw error
+        }
+    },
+    restoreTrashDocument:async(docId:string)=>{
+        try {
+            const response = await api.put(`document/restoreDocuments/${docId}`)
+            return response.data
+        } catch (error) {
+            console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message)
+            }
+            throw error
+        }
+    },
+    handlePermanentDocument:async(docId:string)=>{
+        try {
+            const response = await api.delete(`document/permanentDelete/${docId}`)
+            return response.data
+        } catch (error) {
+              console.error(error)
             if (axios.isAxiosError(error)){
                 throw new Error(error?.response?.data.message)
             }

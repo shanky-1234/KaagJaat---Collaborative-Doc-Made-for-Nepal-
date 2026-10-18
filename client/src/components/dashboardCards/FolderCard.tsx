@@ -1,5 +1,5 @@
 import { formatDateandTime } from "@/utils/dateandtime/formatDateandTime";
-import { Clock, EllipsisVertical, FileText, Pencil, Trash } from "lucide-react";
+import { Clock, EllipsisVertical, FileText, Pencil, RotateCcw, Trash } from "lucide-react";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "#components/ui/alert-dialog";
 import { Button } from "#components/ui/button";
@@ -14,6 +14,9 @@ type FolderCardProps = {
   onClick?: () => void;
   onRename?: (name: string) => void | Promise<void>;
   onDelete?: () => void;
+  variant?: "default" | "trash";
+  onRestore?: () => void | Promise<void>;
+  onPermanentDelete?: () => void | Promise<void>;
 };
 
 function FolderCard({
@@ -23,7 +26,11 @@ function FolderCard({
   onClick,
   onRename,
   onDelete,
+  variant = "default",
+  onRestore,
+  onPermanentDelete,
 }: FolderCardProps) {
+  const isTrash = variant === "trash";
   const [showDelete, setShowDelete] = useState<boolean>(false);
   const [showRename, setShowRename] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>(title);
@@ -87,19 +94,35 @@ function FolderCard({
               <EllipsisVertical size={17} />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-white border-1 border-neutral-300 ring-0! outline-0!">
-              <DropdownMenuItem
-                className="ring-0 outline-0 border-0 cursor-pointer"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setNewName(title);
-                  setShowRename(true);
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Pencil size={14} />
-                  <span>Rename</span>
-                </div>
-              </DropdownMenuItem>
+              {!isTrash && (
+                <DropdownMenuItem
+                  className="ring-0 outline-0 border-0 cursor-pointer"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setNewName(title);
+                    setShowRename(true);
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Pencil size={14} />
+                    <span>Rename</span>
+                  </div>
+                </DropdownMenuItem>
+              )}
+              {isTrash && (
+                <DropdownMenuItem
+                  className="ring-0 outline-0 border-0 cursor-pointer"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    void onRestore?.();
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <RotateCcw size={14} />
+                    <span>Restore</span>
+                  </div>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="ring-0 outline-0 border-0 cursor-pointer hover:bg-neutral-400"
                 onClick={(event) => {
@@ -109,7 +132,7 @@ function FolderCard({
               >
                 <div className="flex items-center gap-2">
                   <Trash size={14} />
-                  <span>Delete</span>
+                  <span>{isTrash ? "Delete Permanently" : "Move to Trash"}</span>
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -169,10 +192,12 @@ function FolderCard({
         >
           <AlertDialogHeader>
             <AlertDialogTitle className="font-primary text-primary">
-              Delete Folder
+              {isTrash ? "Delete Folder Permanently" : "Move Folder to Trash"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{title}"?
+              {isTrash
+                ? `Are you sure you want to permanently delete "${title}" and its documents? This action cannot be undone.`
+                : `Move "${title}" and its documents to trash? You can restore them from Trash.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="bg-neutral-100 border-0">
@@ -183,10 +208,14 @@ function FolderCard({
               className="cursor-pointer"
               onClick={(event) => {
                 event.stopPropagation();
-                onDelete?.();
+                if (isTrash) {
+                  void onPermanentDelete?.();
+                } else {
+                  onDelete?.();
+                }
               }}
             >
-              Continue
+              {isTrash ? "Delete permanently" : "Move to Trash"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

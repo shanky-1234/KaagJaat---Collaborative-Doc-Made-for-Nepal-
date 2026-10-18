@@ -11,6 +11,8 @@ const folderRoute = require('./Router/folderRoutes')
 
 const transliterate = require('./Controller/transliteration')
 
+const startTrashCleanup = require("./jobs/deleteDocumentScheduler");
+
 connectToDB()
 
 const app = express()
@@ -27,6 +29,8 @@ app.use('/v1/api/document',documentRoute)
 app.use('/v1/api/space',spaceRouter)
 app.use('/v1/api/folder',folderRoute)
 app.use('/v1/api/transliterate',transliterate)
+
+startTrashCleanup();
 
 app.listen(process.env.PORT,()=>{
     

@@ -56,12 +56,41 @@ export function UseHandleDocuments () {
         }
       };
 
+    const handleRestoreDocument = async(e:any,id:string,onSuccess:()=>void) =>{
+      try {
+        e.stopPropagation()
+        const response = await documentHandler.restoreTrashDocument(id)
+        if (response.success) {
+          toast.success('Restored Successful')
+          onSuccess?.()
+        }
+      } catch (error) {
+         console.error(error);
+          toast.error(`${error}`);
+      }
+    }
+
+    const handlePermanentDelete = async(id:string,onSuccess:()=>void) =>{
+      try {
+        const response = await documentHandler.handlePermanentDocument(id)
+        if (response.success) {
+          toast.success('Deleted Permanently')
+          onSuccess?.()
+        }
+      } catch (error) {
+         console.error(error);
+          toast.error(`${error}`);
+      }
+    }
+
       return {
         handleCreateDocument,
         getAllDocument,
         handleDocumentRouting,
         handleDocumentDelete,
         userDocuments,
-        currentSpace
+        currentSpace,
+        handleRestoreDocument,
+        handlePermanentDelete
       }
 }

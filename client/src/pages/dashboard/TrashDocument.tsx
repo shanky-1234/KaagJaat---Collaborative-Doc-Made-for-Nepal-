@@ -2,6 +2,12 @@ import { documentHandler } from '@/services/documentHandler'
 import DocumentCard from '#components/dashboardCards/DocumentCard'
 import type { DocumentResponse } from '@/types/documentResponse'
 import { useEffect, useState } from 'react'
+import { UseHandleDocuments } from '#hooks/useHandleDocuments'
+import { Bounce, ToastContainer } from 'react-toastify'
+import FolderCard from '#components/dashboardCards/FolderCard'
+import { folderService } from '@/services/folderHandler'
+import type { folderResponseProps } from '@/types/folder'
+import { toast } from 'react-toastify'
 
 function TrashIllustration() {
   return (
@@ -24,26 +30,50 @@ function TrashIllustration() {
 
 function TrashDocument() {
     const [trashDocuments,setTrashDocuments] = useState<DocumentResponse[]>([])
+    const [trashFolders,setTrashFolders] = useState<folderResponseProps[]>([])
+    const {handleRestoreDocument,handlePermanentDelete,currentSpace} = UseHandleDocuments()
     const getTrashDocument = async ()=>{
+      if (!currentSpace?._id) {
+    return;
+  }
         try {
-            const response = await documentHandler.getTrashDocument()
+            const response = await documentHandler.getTrashDocument(currentSpace?._id)
             if (response.success){
                 setTrashDocuments(response.trashDocument)
             }
+            const folderResponse = await folderService.getTrashFolders(currentSpace._id)
+            if (folderResponse.success) {
+                setTrashFolders(folderResponse.folders)
+            }
         } catch (error) {
             console.error(error)
+            toast.error(`${error}`)
         }
     }
 
     useEffect(()=>{
-        getTrashDocument()
-    },[])
+       if (currentSpace?._id) {
+    getTrashDocument();
+  }
+    },[currentSpace?._id])
   return (
     <main className='mt-8 mx-8'>
+      <ToastContainer
+      position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}/>
     <section>
        <div className={`px-4 py-6 bg-neutral-500 flex-row items-center rounded-xl md:flex justify-between`}>
         <div>
-        <h1 className={`font-secondary text-white`}>Document in Trash</h1>
+        <h1 className={`font-secondary text-white`}>Items in Trash</h1>
         </div>
         <TrashIllustration />
         </div>
@@ -60,11 +90,63 @@ function TrashDocument() {
               content={document.content}
               author={document.ownerUser.fullname}
               date={document.updatedAt}
+              restoreDocument={(e:any)=>
+                handleRestoreDocument(e,document._id,()=>{
+                  setTrashDocuments((prev)=> prev.filter((doc) => doc._id !== document._id))
+                })
+              }
+              onPermanentDelete={()=>
+                handlePermanentDelete(document._id,()=>{
+                  setTrashDocuments((prev)=> prev.filter((doc) => doc._id !== document._id))
+                })
+              }
             />
           ))}
         </div>
       ) : (
-        <p className='text-center text-neutral-500'>Trash is empty</p>
+        <p className='text-center text-neutral-500'>No documents in trash</p>
+      )}
+    </section>
+
+    <section className='mt-10'>
+      <h2 className='mb-4 text-xl'>Folders in Trash</h2>
+      {trashFolders.length ? (
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {trashFolders.map((folder) => (
+            <FolderCard
+              key={folder._id}
+              variant="trash"
+              title={folder.name}
+              date={folder.updatedAt}
+              onRestore={async()=>{
+                try {
+                  const response = await folderService.restoreFolder(folder._id)
+                  if (response.success) {
+                    toast.success("Folder Restored")
+                    setTrashFolders((prev)=>prev.filter((item)=>item._id !== folder._id))
+                  }
+                } catch (error) {
+                  console.error(error)
+                  toast.error(`${error}`)
+                }
+              }}
+              onPermanentDelete={async()=>{
+                try {
+                  const response = await folderService.deleteFolderPermanently(folder._id)
+                  if (response.success) {
+                    toast.success("Folder Deleted Permanently")
+                    setTrashFolders((prev)=>prev.filter((item)=>item._id !== folder._id))
+                  }
+                } catch (error) {
+                  console.error(error)
+                  toast.error(`${error}`)
+                }
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className='text-center text-neutral-500'>No folders in trash</p>
       )}
     </section>
 

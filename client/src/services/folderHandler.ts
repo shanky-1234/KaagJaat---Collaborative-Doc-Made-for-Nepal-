@@ -1,6 +1,6 @@
 import axios from "axios"
 import api from "./api/api"
-import type { apiFolderResponse, folderDataProps, getDocumentsFolder, getFolderResponse, getSingleFolderResponse } from "@/types/folder"
+import type { apiFolderResponse, folderActionResponse, folderDataProps, getDocumentsFolder, getFolderResponse, getSingleFolderResponse } from "@/types/folder"
 
 export const folderService = {
     createFolder:async(data:folderDataProps):Promise<apiFolderResponse>=>{
@@ -57,6 +57,54 @@ export const folderService = {
             return respone.data
         } catch (error) {
                 console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message, {cause:error})
+            }
+            throw error
+        }
+    },
+    deleteFolder:async(folderId:string):Promise<folderActionResponse>=>{
+        try {
+            const response = await api.delete(`folder/${folderId}`)
+            return response.data
+        } catch (error) {
+            console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message, {cause:error})
+            }
+            throw error
+        }
+    },
+    getTrashFolders:async(spaceId:string):Promise<getFolderResponse>=>{
+        try {
+            const response = await api.get('folder/trash',{params:{spaceId}})
+            return response.data
+        } catch (error) {
+            console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message, {cause:error})
+            }
+            throw error
+        }
+    },
+    restoreFolder:async(folderId:string):Promise<folderActionResponse>=>{
+        try {
+            const response = await api.put(`folder/restore/${folderId}`)
+            return response.data
+        } catch (error) {
+            console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message, {cause:error})
+            }
+            throw error
+        }
+    },
+    deleteFolderPermanently:async(folderId:string):Promise<folderActionResponse>=>{
+        try {
+            const response = await api.delete(`folder/permanentDelete/${folderId}`)
+            return response.data
+        } catch (error) {
+            console.error(error)
             if (axios.isAxiosError(error)){
                 throw new Error(error?.response?.data.message, {cause:error})
             }

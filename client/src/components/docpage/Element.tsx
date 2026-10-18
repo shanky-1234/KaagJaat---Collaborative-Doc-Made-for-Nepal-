@@ -76,6 +76,19 @@ function Element({ attributes, children, element }: RenderElementProps) {
       </div>
       )
 
+    case "image":
+      return (
+        <div {...attributes} className="my-4">
+          {children}
+          <img 
+          src={element.url}
+          alt={element.alt ?? ""}
+          className="max-w-full h-auto"
+          contentEditable={false}
+          />
+        </div>
+      )
+
     default:
       return (
         <p {...attributes} style={{...style,fontSize:'16px'}}>

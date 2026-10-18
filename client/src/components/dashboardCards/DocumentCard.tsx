@@ -25,11 +25,12 @@ type DocumentCardProps = {
   variant?:'default' | 'trash',
   onRestore?:() => void | Promise<void>,
   onPermanentDelete?:() => void | Promise<void>,
+  restoreDocument?:(e: React.MouseEvent<HTMLDivElement>) => void
 
 }
 
 
-function DocumentCard({title,author,content,date,onClick,onClickDelete,folder,folders,onMoveToFolder,variant='default',onRestore,onPermanentDelete}:DocumentCardProps) {
+function DocumentCard({title,author,content,date,onClick,onClickDelete,folder,folders,onMoveToFolder,variant='default',onRestore,onPermanentDelete,restoreDocument}:DocumentCardProps) {
   const isTrash = variant === 'trash'
   const [showOption,setShowOption] = useState<boolean>(false)
   const [loading,setLoading] = useState<boolean>(false)
@@ -75,7 +76,7 @@ function DocumentCard({title,author,content,date,onClick,onClickDelete,folder,fo
                       e.stopPropagation()
                       void onRestore?.()
                     }}>
-                      <div className='flex items-center gap-2'>
+                      <div className='flex items-center gap-2' onClick={restoreDocument}>
                         <RotateCcw size={14}/>
                         <span>Restore</span>
                       </div>
@@ -186,7 +187,7 @@ function DocumentCard({title,author,content,date,onClick,onClickDelete,folder,fo
             </AlertDialogTitle>
             <AlertDialogDescription>
               {isTrash
-                ? 'This document will be deleted permanently and cannot be restored.'
+                ? 'Are you sure you want to permanently delete this document? This action cannot be undone.'
                 : 'The item will move to the trash. It will remain for 30days and will be deleted permanently automatically. You can still restore this document by going to the trash'}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -199,7 +200,7 @@ function DocumentCard({title,author,content,date,onClick,onClickDelete,folder,fo
     } else {
       onClickDelete?.(e as any)
     }
-  }}>Continue</AlertDialogAction>
+  }}>{isTrash ? 'Delete permanently' : 'Continue'}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

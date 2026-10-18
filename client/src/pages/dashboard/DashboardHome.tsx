@@ -114,6 +114,19 @@ function DashboardHome() {
         console.error(error)
     }
   }
+
+  const handleDeleteFolder = async (folderId:string) =>{
+    try {
+      const response = await folderService.deleteFolder(folderId)
+      if (response.success) {
+        toast.success("Folder Moved to Trash")
+        setFolders((prev)=>prev?.filter((folder)=>folder._id !== folderId))
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(`${error}`)
+    }
+  }
   return (
     <main className="mt-8 mx-8">
       <ToastContainer
@@ -305,6 +318,7 @@ function DashboardHome() {
                     date={folder.updatedAt}
                     onClick={()=>handleFolderOpen(folder._id)}
                     onRename={(newName)=>handleRenameFolder(folder._id,newName)}
+                    onDelete={()=>void handleDeleteFolder(folder._id)}
                   />
                 ))}
               </div>
@@ -316,6 +330,7 @@ function DashboardHome() {
                     title={folder.name}
                     date={folder.updatedAt}
                     onClick={()=>handleFolderOpen(folder._id)}
+                    onDelete={()=>void handleDeleteFolder(folder._id)}
                   />
                 ))}
               </div>
