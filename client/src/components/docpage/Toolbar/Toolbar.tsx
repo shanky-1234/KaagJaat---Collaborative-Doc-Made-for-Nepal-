@@ -29,6 +29,7 @@ import TextStylePicker from "./TextStylePicker";
 import PageBreakButton from "./PageBreakButton";
 import BulletPointListingButton from "./BulletPointListingButton";
 import OrderedPointsListingButton from "./OrderedPointsListingButton";
+import ImageUpload from "./ImageUpload";
 
 function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
   return (
@@ -36,6 +37,7 @@ function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
       <UndoRedoButton editor={editor} />
       <div className="block border min-h-[30px] border-neutral-200" />
       <PageBreakButton editor={editor}/>
+       <ImageUpload editor={editor}/>
       <div className="block border min-h-[30px] border-neutral-200" />
       <TextStylePicker/>
        <div className="block border min-h-[30px] border-neutral-200" />
@@ -78,6 +80,7 @@ function Toolbar({ editor }: { editor: Editor & HistoryEditor }) {
     <OrderedPointsListingButton editor={editor} bulletType="numbered-list">
        <ListOrdered/>
     </OrderedPointsListingButton>
+   
     </section>
   );
 }

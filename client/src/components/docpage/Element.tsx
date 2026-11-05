@@ -1,4 +1,5 @@
-import type { RenderElementProps } from "slate-react";
+import type { RenderElementProps} from "slate-react";
+import ImageElement from "./ImageElement";
 
 /* Contains Elements: Basically Block Level Contents */
 
@@ -78,15 +79,7 @@ function Element({ attributes, children, element }: RenderElementProps) {
 
     case "image":
       return (
-        <div {...attributes} className="my-4">
-          {children}
-          <img 
-          src={element.url}
-          alt={element.alt ?? ""}
-          className="max-w-full h-auto"
-          contentEditable={false}
-          />
-        </div>
+        <ImageElement attributes={attributes} children={children} element={element}/>
       )
 
     default:

@@ -1,6 +1,6 @@
 import axios from "axios"
 import api from "./api/api"
-import type { allDocumentResponse, createDocumentResponse, deleteDocumentResponse, singleDocumentResponse, upadateDocumentResponse } from "@/types/documentResponse"
+import type { allDocumentResponse, createDocumentResponse, deleteDocumentResponse, singleDocumentResponse, upadateDocumentResponse, uploadDocumentResponse } from "@/types/documentResponse"
 import type { Descendant } from "slate"
 import type { DocumentSettingType } from "@/types/documentSetting"
 
@@ -121,6 +121,21 @@ export const documentHandler = {
     handlePermanentDocument:async(docId:string)=>{
         try {
             const response = await api.delete(`document/permanentDelete/${docId}`)
+            return response.data
+        } catch (error) {
+              console.error(error)
+            if (axios.isAxiosError(error)){
+                throw new Error(error?.response?.data.message)
+            }
+            throw error
+        }
+    },
+    handleImageUploadOnDocument:async(file:File):Promise<uploadDocumentResponse> =>{
+        try {
+            const formData = new FormData()
+
+            formData.append('image',file)
+            const response = await api.post('/document/uploadImage',formData)
             return response.data
         } catch (error) {
               console.error(error)

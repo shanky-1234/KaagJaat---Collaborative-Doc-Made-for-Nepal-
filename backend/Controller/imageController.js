@@ -3,7 +3,7 @@ const {Readable} = require('stream')
 
 const uploadImage = async(req,res)=>{
     try {
-        if (!req.files){
+        if (!req.file){
             return res.status(400).json({
                 success:false,
                 message:"No Image File Not Provided"
@@ -46,4 +46,4 @@ const uploadImage = async(req,res)=>{
     }
 }
 
-module.exports = uploadImage
+module.exports = {uploadImage}

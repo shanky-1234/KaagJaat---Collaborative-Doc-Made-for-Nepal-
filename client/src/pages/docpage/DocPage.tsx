@@ -40,6 +40,7 @@
   import DocumentPage from "#components/docpage/DocumentPage";
 import { withPageBreak } from "@/utils/withPageBreak";
 import { insertPageBreak } from "@/utils/pageBreak";
+import { withImages } from "@/utils/withImage";
 
   function DocPage() {
     const [pageCount, setPageCount] = useState<number>(1);
@@ -59,8 +60,8 @@ import { insertPageBreak } from "@/utils/pageBreak";
       left: 0,
     });
     const { id } = useParams();
-    const [editor] = useState<BaseEditor & ReactEditor & HistoryEditor>(() =>
-      withPageBreak(withHistory(withReact(createEditor()))) as BaseEditor &
+    const [editor] = useState<BaseEditor & ReactEditor & HistoryEditor>(() => withImages(
+      withPageBreak(withHistory(withReact(createEditor())))) as BaseEditor &
         ReactEditor &
         HistoryEditor
     );

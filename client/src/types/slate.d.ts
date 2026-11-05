@@ -21,7 +21,9 @@ type CustomElements = {
     children:CustomText[]
     listStyle?:'disc' | 'circle' | 'square' | 'none' | 'numbered',
     url?:string,
-    alt?:string
+    alt?:string,
+    width?:number,
+    height?:number
 }
 
 type PageBreakModule = {

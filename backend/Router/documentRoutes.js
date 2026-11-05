@@ -1,6 +1,8 @@
 const express = require('express')
 const verifyToken = require('../Middleware/authMiddleware')
-const {createDocuments,getDocument, getSingleDocument, updateDocument, deleteDocument, moveDocument, getTrashDocument, restoreDocument, deletePermanently} = require('../Controller/documentController')
+const {uploadImage}= require('../Controller/imageController')
+const upload = require('../Middleware/uploadMiddleware')
+const {createDocuments,getDocument, getSingleDocument, updateDocument, deleteDocument, moveDocument, getTrashDocument, restoreDocument} = require('../Controller/documentController')
 
 const app = express.Router()
 
@@ -12,6 +14,7 @@ app.patch('/:documentId/move',verifyToken,moveDocument)
 app.delete('/deleteDocuments/:id',verifyToken,deleteDocument)
 app.put('/restoreDocuments/:docId',verifyToken,restoreDocument)
 app.get('/trash',verifyToken,getTrashDocument)
-app.delete('/permanentDelete/:docId',verifyToken,deletePermanently)
+app.post('/uploadImage',verifyToken,upload.single('image'),uploadImage)
+// app.delete('/permanentDelete/:docId',verifyToken,deletePermanently)
 
 module.exports = app

@@ -66,3 +66,11 @@ export type deleteDocumentResponse = {
     message:string,
     deletedData:DocumentResponse[]
 }
+
+export type uploadDocumentResponse = {
+    success:boolean,
+    message:string,
+    url:string,
+    public_id:string
+
+}
