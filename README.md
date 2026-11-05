@@ -21,6 +21,8 @@ The goal is to provide a unified platform for writing, organizing, and managing 
 
 ### Document Editor
 <img width="1899" height="729" alt="image" src="https://github.com/user-attachments/assets/5ac6801b-ce6c-4e25-a96a-473b8fae00ec" />
+<img width="1903" height="771" alt="image" src="https://github.com/user-attachments/assets/08b8aa4a-0392-4253-8ec7-b7b5aeb79e2d" />
+
 
 ### Workspace
 <img width="1899" height="777" alt="image" src="https://github.com/user-attachments/assets/cc9d4d56-6b72-4b7c-99dc-53317031e321" />
